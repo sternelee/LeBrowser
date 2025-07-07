@@ -1,12 +1,14 @@
-import { StyleSheet, ScrollView, Text, View, Switch, TouchableOpacity, Alert, ViewStyle, TextStyle } from 'react-native';
+import { StyleSheet, ScrollView, Text, View, Switch, TouchableOpacity, Alert, ViewStyle, TextStyle, Modal, FlatList, TextInput } from 'react-native';
 import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed to staticTheme to avoid conflict
-import { Shield, Lock, Cookie, Trash2, ArrowLeft, Fingerprint, Globe, Settings, Moon, Sun, Monitor, Smartphone } from 'lucide-react-native';
+import { Shield, Lock, Cookie, Trash2, ArrowLeft, Fingerprint, Globe, Settings, Moon, Sun, Monitor, Smartphone, Home, Search, ChevronRight, Check, X } from 'lucide-react-native';
 import { usePrivacyContext } from '@/context/PrivacyContext';
 import { useTheme } from '@/context/ThemeContext';
+import { useBrowserContext } from '@/context/BrowserContext';
 import { useRouter } from 'expo-router';
 import { useSafeArea } from '@/hooks/useSafeArea';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState } from 'react';
 
 export default function PrivacyScreen() {
   const {
@@ -25,15 +27,57 @@ export default function PrivacyScreen() {
     clearBrowsingData
   } = usePrivacyContext();
 
+  const {
+    currentSearchEngine,
+    availableSearchEngines,
+    currentHomepage,
+    availableHomepages,
+    customHomepageUrl,
+    setSearchEngine,
+    setHomepage,
+    setCustomHomepageUrl
+  } = useBrowserContext();
+
   const router = useRouter();
   const { isTablet, isDesktop, getIconSize, getFontSize, getResponsivePadding } = useResponsiveSize();
   const { styles: safeAreaStyles } = useSafeArea();
   const { isDarkMode, toggleTheme, isMobileMode, toggleUserAgentMode } = useTheme();
 
+  const [showSearchEngineModal, setShowSearchEngineModal] = useState(false);
+  const [showHomepageModal, setShowHomepageModal] = useState(false);
+  const [showCustomUrlInput, setShowCustomUrlInput] = useState(false);
+  const [customUrlInput, setCustomUrlInput] = useState(customHomepageUrl);
+
   const dynamicStyles = commonStyles(isDarkMode);
 
   const goBack = () => {
     router.back();
+  };
+
+  const handleSaveCustomUrl = () => {
+    let url = customUrlInput.trim();
+    if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+      url = 'https://' + url;
+    }
+
+    if (url) {
+      setCustomHomepageUrl(url);
+      setHomepage({ name: 'Custom', url: '' });
+      setShowCustomUrlInput(false);
+      setShowHomepageModal(false);
+    }
+  };
+
+  const getHomepageDisplayText = () => {
+    if (currentHomepage.name === 'Custom' && customHomepageUrl) {
+      try {
+        const urlObj = new URL(customHomepageUrl);
+        return urlObj.hostname;
+      } catch (e) {
+        return customHomepageUrl;
+      }
+    }
+    return currentHomepage.name;
   };
 
   const handleClearBrowsingData = () => {
@@ -198,6 +242,46 @@ export default function PrivacyScreen() {
               ios_backgroundColor={staticTheme.colors.neutral[300]}
             />
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.settingRow, styles.settingButton]}
+            onPress={() => setShowHomepageModal(true)}
+          >
+            <View style={styles.settingIcon}>
+              <Home size={20} color={isPrivateMode ? staticTheme.colors.primary.light : dynamicStyles.iconAccent.color} />
+            </View>
+            <View style={styles.settingContent}>
+              <Text style={[styles.settingLabel, { color: dynamicStyles.text.primary.color }, isPrivateMode && styles.privateText]}>
+                Homepage
+              </Text>
+              <Text style={[styles.settingDescription, { color: dynamicStyles.text.secondary.color }, isPrivateMode && styles.privateDescription]}>
+                {getHomepageDisplayText()}
+              </Text>
+            </View>
+            <View style={styles.settingIcon}>
+              <ChevronRight size={20} color={dynamicStyles.iconAccent.color} />
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.settingRow, styles.settingButton]}
+            onPress={() => setShowSearchEngineModal(true)}
+          >
+            <View style={styles.settingIcon}>
+              <Search size={20} color={isPrivateMode ? staticTheme.colors.primary.light : dynamicStyles.iconAccent.color} />
+            </View>
+            <View style={styles.settingContent}>
+              <Text style={[styles.settingLabel, { color: dynamicStyles.text.primary.color }, isPrivateMode && styles.privateText]}>
+                Search Engine
+              </Text>
+              <Text style={[styles.settingDescription, { color: dynamicStyles.text.secondary.color }, isPrivateMode && styles.privateDescription]}>
+                {currentSearchEngine.name}
+              </Text>
+            </View>
+            <View style={styles.settingIcon}>
+              <ChevronRight size={20} color={dynamicStyles.iconAccent.color} />
+            </View>
+          </TouchableOpacity>
         </View>
 
         <View style={[styles.section, { borderBottomColor: dynamicStyles.button.secondary.borderColor }]}>
@@ -313,6 +397,189 @@ export default function PrivacyScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+
+      {/* Search Engine Selection Modal */}
+      <Modal
+        visible={showSearchEngineModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowSearchEngineModal(false)}
+      >
+        <View style={[styles.modalOverlay, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}>
+          <View style={[
+            styles.modalContainer,
+            { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor }
+          ]}>
+            <View style={[styles.modalHeader, { borderBottomColor: dynamicStyles.button.secondary.borderColor }]}>
+              <Text style={[styles.modalTitle, { color: dynamicStyles.text.primary.color }]}>
+                Select Search Engine
+              </Text>
+              <TouchableOpacity onPress={() => setShowSearchEngineModal(false)}>
+                <ArrowLeft size={24} color={dynamicStyles.text.primary.color} />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={availableSearchEngines}
+              keyExtractor={(item) => item.name}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[
+                    styles.modalItem,
+                    currentSearchEngine.name === item.name && { backgroundColor: dynamicStyles.button.secondary.backgroundColor }
+                  ]}
+                  onPress={() => {
+                    setSearchEngine(item);
+                    setShowSearchEngineModal(false);
+                  }}
+                >
+                  <Text style={[styles.modalItemText, { color: dynamicStyles.text.primary.color }]}>
+                    {item.name}
+                  </Text>
+                  {currentSearchEngine.name === item.name && (
+                    <View style={styles.selectedIndicator}>
+                      <Text style={{ color: dynamicStyles.iconAccent.color }}>✓</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
+
+      {/* Homepage Selection Modal */}
+      <Modal
+        visible={showHomepageModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowHomepageModal(false)}
+      >
+        <View style={[styles.modalOverlay, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}>
+          <View style={[
+            styles.modalContainer,
+            { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor }
+          ]}>
+            <View style={[styles.modalHeader, { borderBottomColor: dynamicStyles.button.secondary.borderColor }]}>
+              <Text style={[styles.modalTitle, { color: dynamicStyles.text.primary.color }]}>
+                Select Homepage
+              </Text>
+              <TouchableOpacity onPress={() => setShowHomepageModal(false)}>
+                <ArrowLeft size={24} color={dynamicStyles.text.primary.color} />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={availableHomepages}
+              keyExtractor={(item) => item.name}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[
+                    styles.modalItem,
+                    currentHomepage.name === item.name && { backgroundColor: dynamicStyles.button.secondary.backgroundColor }
+                  ]}
+                  onPress={() => {
+                    if (item.name === 'Custom') {
+                      setCustomUrlInput(customHomepageUrl);
+                      setShowCustomUrlInput(true);
+                    } else {
+                      setHomepage(item);
+                      setShowHomepageModal(false);
+                    }
+                  }}
+                >
+                  <Text style={[styles.modalItemText, { color: dynamicStyles.text.primary.color }]}>
+                    {item.name === 'Custom' && customHomepageUrl ? `Custom (${customHomepageUrl.includes('://') ? new URL(customHomepageUrl).hostname : customHomepageUrl})` : item.name}
+                  </Text>
+                  {currentHomepage.name === item.name && (
+                    <View style={styles.selectedIndicator}>
+                      <Text style={{ color: dynamicStyles.iconAccent.color }}>✓</Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
+
+      {/* Custom URL Input Modal */}
+      <Modal
+        visible={showCustomUrlInput}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowCustomUrlInput(false)}
+      >
+        <View style={[styles.modalOverlay, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}>
+          <View style={[
+            styles.modalContainer,
+            { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor }
+          ]}>
+            <View style={[styles.modalHeader, { borderBottomColor: dynamicStyles.button.secondary.borderColor }]}>
+              <Text style={[styles.modalTitle, { color: dynamicStyles.text.primary.color }]}>
+                Custom Homepage URL
+              </Text>
+              <TouchableOpacity onPress={() => setShowCustomUrlInput(false)}>
+                <X size={24} color={dynamicStyles.text.primary.color} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.customUrlContainer}>
+              <Text style={[styles.customUrlLabel, { color: dynamicStyles.text.primary.color }]}>
+                Enter website URL:
+              </Text>
+              <TextInput
+                style={[
+                  styles.customUrlInput,
+                  {
+                    backgroundColor: dynamicStyles.input.base.backgroundColor,
+                    borderColor: dynamicStyles.input.base.borderColor,
+                    color: dynamicStyles.text.primary.color
+                  }
+                ]}
+                value={customUrlInput}
+                onChangeText={setCustomUrlInput}
+                placeholder="e.g., example.com or https://example.com"
+                placeholderTextColor={dynamicStyles.text.secondary.color}
+                autoCapitalize="none"
+                keyboardType="url"
+                returnKeyType="done"
+                onSubmitEditing={handleSaveCustomUrl}
+                autoFocus={true}
+              />
+
+              <View style={styles.customUrlButtons}>
+                <TouchableOpacity
+                  style={[
+                    styles.customUrlButton,
+                    styles.cancelButton,
+                    { borderColor: dynamicStyles.button.secondary.borderColor }
+                  ]}
+                  onPress={() => {
+                    setCustomUrlInput(customHomepageUrl);
+                    setShowCustomUrlInput(false);
+                  }}
+                >
+                  <Text style={[styles.buttonText, { color: dynamicStyles.text.primary.color }]}>
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.customUrlButton,
+                    styles.saveButton,
+                    { backgroundColor: staticTheme.colors.primary.main }
+                  ]}
+                  onPress={handleSaveCustomUrl}
+                >
+                  <Text style={[styles.buttonText, { color: staticTheme.colors.neutral[900] }]}>
+                    Save
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -394,5 +661,82 @@ const styles = StyleSheet.create({
   } as TextStyle,
   clearDataButton: {
     borderBottomWidth: 0,
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '90%',
+    maxHeight: '80%',
+    borderRadius: staticTheme.radius.lg,
+    overflow: 'hidden',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: staticTheme.spacing.lg,
+    borderBottomWidth: 1,
+  },
+  modalTitle: {
+    fontSize: staticTheme.typography.sizes.lg,
+    fontFamily: staticTheme.typography.families.sansMedium,
+  },
+  modalItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: staticTheme.spacing.lg,
+  },
+  modalItemText: {
+    fontSize: staticTheme.typography.sizes.base,
+    fontFamily: staticTheme.typography.families.sans,
+  },
+  selectedIndicator: {
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  customUrlContainer: {
+    padding: staticTheme.spacing.lg,
+  },
+  customUrlLabel: {
+    fontSize: staticTheme.typography.sizes.base,
+    fontFamily: staticTheme.typography.families.sansMedium,
+    marginBottom: staticTheme.spacing.md,
+  },
+  customUrlInput: {
+    borderWidth: 1,
+    borderRadius: staticTheme.radius.md,
+    padding: staticTheme.spacing.md,
+    fontSize: staticTheme.typography.sizes.base,
+    fontFamily: staticTheme.typography.families.sans,
+    marginBottom: staticTheme.spacing.lg,
+  },
+  customUrlButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: staticTheme.spacing.md,
+  },
+  customUrlButton: {
+    flex: 1,
+    paddingVertical: staticTheme.spacing.md,
+    paddingHorizontal: staticTheme.spacing.lg,
+    borderRadius: staticTheme.radius.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  cancelButton: {
+    borderWidth: 1,
+  },
+  saveButton: {
+    // backgroundColor applied inline
+  },
+  buttonText: {
+    fontSize: staticTheme.typography.sizes.base,
+    fontFamily: staticTheme.typography.families.sansMedium,
   },
 });

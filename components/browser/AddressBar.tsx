@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { StyleSheet, View, TextInput, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
 import { Search, Lock, X, Menu } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { useBrowserContext } from '@/context/BrowserContext';
 
 interface AddressBarProps {
   url: string;
@@ -14,7 +15,8 @@ export function AddressBar({ url, onSubmit, isLoading, isPrivateMode }: AddressB
   const [inputValue, setInputValue] = useState(url);
   const [isFocused, setIsFocused] = useState(false);
   const router = useRouter();
-  
+  const { getSearchUrl } = useBrowserContext();
+
   useEffect(() => {
     if (url !== inputValue && !isFocused) {
       setInputValue(url);
@@ -25,8 +27,7 @@ export function AddressBar({ url, onSubmit, isLoading, isPrivateMode }: AddressB
     let processedUrl = inputValue.trim();
     if (processedUrl && !processedUrl.startsWith('http')) {
       if (processedUrl.includes(' ') || !processedUrl.includes('.')) {
-        const searchEngine = 'https://www.google.com/search?q=';
-        processedUrl = searchEngine + encodeURIComponent(processedUrl);
+        processedUrl = getSearchUrl(processedUrl);
       } else {
         processedUrl = 'https://' + processedUrl;
       }
@@ -38,9 +39,9 @@ export function AddressBar({ url, onSubmit, isLoading, isPrivateMode }: AddressB
   const handleClear = () => {
     setInputValue('');
   };
-  
+
   const isSecure = url.startsWith('https://');
-  
+
   return (
     <View style={[styles.container, isPrivateMode && styles.privateContainer]}>
       <View style={styles.addressBarContainer}>
@@ -61,7 +62,7 @@ export function AddressBar({ url, onSubmit, isLoading, isPrivateMode }: AddressB
               )}
             </>
           )}
-          
+
           <TextInput
             style={[styles.input, isPrivateMode && styles.privateInput]}
             value={inputValue}
@@ -76,15 +77,15 @@ export function AddressBar({ url, onSubmit, isLoading, isPrivateMode }: AddressB
             returnKeyType="go"
             selectTextOnFocus
           />
-          
+
           {inputValue !== '' && isFocused && (
             <TouchableOpacity onPress={handleClear} style={styles.clearButton}>
               <X size={16} color="#B3B3B3" />
             </TouchableOpacity>
           )}
         </View>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           style={styles.menuButton}
           onPress={() => router.push('/privacy')}
         >

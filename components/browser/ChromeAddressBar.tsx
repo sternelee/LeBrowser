@@ -5,6 +5,7 @@ import { useTheme } from '@/context/ThemeContext'; // Import useTheme
 import { Search, Lock, X, Layers, MoreVertical } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
+import { useBrowserContext } from '@/context/BrowserContext';
 
 interface ChromeAddressBarProps {
   url: string;
@@ -32,6 +33,7 @@ export function ChromeAddressBar({
   const router = useRouter();
   const { isTablet, isDesktop, getIconSize, getFontSize, getResponsivePadding } = useResponsiveSize();
   const { isDarkMode } = useTheme(); // Get theme status
+  const { getSearchUrl } = useBrowserContext();
   const dynamicStyles = commonStyles(isDarkMode); // Get dynamic styles
 
   useEffect(() => {
@@ -44,8 +46,7 @@ export function ChromeAddressBar({
     let processedUrl = inputValue.trim();
     if (processedUrl && !processedUrl.startsWith('http')) {
       if (processedUrl.includes(' ') || !processedUrl.includes('.')) {
-        const searchEngine = 'https://www.google.com/search?q=';
-        processedUrl = searchEngine + encodeURIComponent(processedUrl);
+        processedUrl = getSearchUrl(processedUrl);
       } else {
         processedUrl = 'https://' + processedUrl;
       }
@@ -85,7 +86,7 @@ export function ChromeAddressBar({
     <View
       style={[
         styles.container,
-        { 
+        {
           backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor,
           borderBottomColor: isPrivateMode ? (isDarkMode ? staticTheme.colors.neutral[300] : staticTheme.colors.neutral[200]) : dynamicStyles.button.secondary.borderColor, // Adjust private border
         },
@@ -95,8 +96,8 @@ export function ChromeAddressBar({
       <View style={styles.addressBarContainer}>
         <View style={[
           styles.inputContainer,
-          { 
-            backgroundColor: isPrivateMode 
+          {
+            backgroundColor: isPrivateMode
               ? (isFocused ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.privateMode.backgroundColor) // Potentially different focused private bg
               : (isFocused ? dynamicStyles.input.focused.backgroundColor : dynamicStyles.input.base.backgroundColor),
             borderColor: isFocused ? dynamicStyles.input.focused.borderColor : dynamicStyles.input.base.borderColor,

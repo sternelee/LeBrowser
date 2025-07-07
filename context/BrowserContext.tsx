@@ -43,6 +43,17 @@ type DownloadItem = {
   fileType: string;
 };
 
+type SearchEngine = {
+  name: string;
+  url: string;
+  searchUrl: string;
+};
+
+type HomepageOption = {
+  name: string;
+  url: string;
+};
+
 interface BrowserContextType {
   tabs: string[];
   currentTab: string;
@@ -57,6 +68,11 @@ interface BrowserContextType {
     canGoForward: boolean;
   };
   isLoading: boolean;
+  currentSearchEngine: SearchEngine;
+  availableSearchEngines: SearchEngine[];
+  currentHomepage: HomepageOption;
+  availableHomepages: HomepageOption[];
+  customHomepageUrl: string;
   addNewTab: () => void;
   removeTab: (tabId: string) => void;
   switchToTab: (tabId: string) => void;
@@ -80,6 +96,11 @@ interface BrowserContextType {
   clearDownloads: () => void;
   loadInitialUrl: () => void;
   navigateToUrl: (url: string) => void;
+  setSearchEngine: (searchEngine: SearchEngine) => void;
+  setHomepage: (homepage: HomepageOption) => void;
+  setCustomHomepageUrl: (url: string) => void;
+  getSearchUrl: (query: string) => string;
+  getHomepageUrl: () => string;
 }
 
 // Default store implementation for web (localStorage)
@@ -130,6 +151,31 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
   const [canGoForward, setCanGoForward] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
+
+  // Available search engines
+  const availableSearchEngines: SearchEngine[] = [
+    { name: 'Google', url: 'https://www.google.com', searchUrl: 'https://www.google.com/search?q=' },
+    { name: 'Bing', url: 'https://www.bing.com', searchUrl: 'https://www.bing.com/search?q=' },
+    { name: 'DuckDuckGo', url: 'https://duckduckgo.com', searchUrl: 'https://duckduckgo.com/?q=' },
+    { name: 'Yahoo', url: 'https://search.yahoo.com', searchUrl: 'https://search.yahoo.com/search?p=' },
+    { name: 'Baidu', url: 'https://www.baidu.com', searchUrl: 'https://www.baidu.com/s?wd=' },
+  ];
+
+  // Available homepage options
+  const availableHomepages: HomepageOption[] = [
+    { name: 'Google', url: 'https://www.google.com' },
+    { name: 'Bing', url: 'https://www.bing.com' },
+    { name: 'DuckDuckGo', url: 'https://duckduckgo.com' },
+    { name: 'Yahoo', url: 'https://search.yahoo.com' },
+    { name: 'Blank Page', url: 'about:blank' },
+    { name: 'Custom', url: '' },
+  ];
+
+  // Default settings
+  const [currentSearchEngine, setCurrentSearchEngineState] = useState<SearchEngine>(availableSearchEngines[0]);
+  const [currentHomepage, setCurrentHomepageState] = useState<HomepageOption>(availableHomepages[0]);
+  const [customHomepageUrl, setCustomHomepageUrlState] = useState<string>('');
+
   const [history, setHistory] = useState<HistoryItem[]>([
     {
       id: '1',
@@ -312,17 +358,46 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
     saveDownloads();
   }, [downloads]);
 
+  // Load search engine and homepage settings from storage
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const storedSearchEngine = await store.getItem('currentSearchEngine');
+        if (storedSearchEngine) {
+          setCurrentSearchEngineState(JSON.parse(storedSearchEngine));
+        }
+
+        const storedHomepage = await store.getItem('currentHomepage');
+        if (storedHomepage) {
+          setCurrentHomepageState(JSON.parse(storedHomepage));
+        }
+
+        const storedCustomHomepageUrl = await store.getItem('customHomepageUrl');
+        if (storedCustomHomepageUrl) {
+          setCustomHomepageUrlState(storedCustomHomepageUrl);
+        }
+      } catch (error) {
+        console.error('Failed to load settings:', error);
+      }
+    };
+
+    loadSettings();
+  }, []);
+
   const addNewTab = useCallback(() => {
     const newTabId = generateUUID();
+    const homepageUrl = currentHomepage.name === 'Custom' && customHomepageUrl
+      ? customHomepageUrl
+      : currentHomepage.url;
     setTabs(prevTabs => [...prevTabs, newTabId]);
     setCurrentTab(newTabId);
     setTabsInfo(prev => ({
       ...prev,
-      [newTabId]: { url: 'https://www.google.com', title: 'New Tab' }
+      [newTabId]: { url: homepageUrl, title: 'New Tab' }
     }));
-    setCurrentUrl('https://www.google.com');
+    setCurrentUrl(homepageUrl);
     router.push('/');
-  }, [router]);
+  }, [router, currentHomepage, customHomepageUrl]);
 
   const removeTab = useCallback((tabId: string) => {
     // Prevent removing the last tab
@@ -498,6 +573,45 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
     setDownloads([]);
   }, []);
 
+  // Search engine and homepage management functions
+  const setSearchEngine = useCallback(async (searchEngine: SearchEngine) => {
+    setCurrentSearchEngineState(searchEngine);
+    try {
+      await store.setItem('currentSearchEngine', JSON.stringify(searchEngine));
+    } catch (error) {
+      console.error('Failed to save search engine:', error);
+    }
+  }, []);
+
+  const setHomepage = useCallback(async (homepage: HomepageOption) => {
+    setCurrentHomepageState(homepage);
+    try {
+      await store.setItem('currentHomepage', JSON.stringify(homepage));
+    } catch (error) {
+      console.error('Failed to save homepage:', error);
+    }
+  }, []);
+
+  const setCustomHomepageUrl = useCallback(async (url: string) => {
+    setCustomHomepageUrlState(url);
+    try {
+      await store.setItem('customHomepageUrl', url);
+    } catch (error) {
+      console.error('Failed to save custom homepage URL:', error);
+    }
+  }, []);
+
+  const getSearchUrl = useCallback((query: string) => {
+    return currentSearchEngine.searchUrl + encodeURIComponent(query);
+  }, [currentSearchEngine]);
+
+  const getHomepageUrl = useCallback(() => {
+    if (customHomepageUrl) {
+      return customHomepageUrl;
+    }
+    return currentHomepage.url;
+  }, [customHomepageUrl, currentHomepage.url]);
+
   const value = {
     tabs,
     currentTab,
@@ -512,6 +626,11 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
       canGoForward
     },
     isLoading,
+    currentSearchEngine,
+    availableSearchEngines,
+    currentHomepage,
+    availableHomepages,
+    customHomepageUrl,
     addNewTab,
     removeTab,
     switchToTab,
@@ -534,7 +653,12 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
     removeDownloadItem,
     clearDownloads,
     loadInitialUrl,
-    navigateToUrl
+    navigateToUrl,
+    setSearchEngine,
+    setHomepage,
+    setCustomHomepageUrl,
+    getSearchUrl,
+    getHomepageUrl
   };
 
   return (

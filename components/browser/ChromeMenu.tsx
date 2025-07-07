@@ -144,12 +144,20 @@ export function ChromeMenu({
       animationType="fade"
       onRequestClose={onClose}
     >
-      <View style={styles.overlay}>
-        <View style={[
-          styles.menuContainer,
-          { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.input.base.backgroundColor }, // Use themed surface
-          { width: menuWidth }
-        ]}>
+      <TouchableOpacity
+        style={styles.overlay}
+        activeOpacity={1}
+        onPress={onClose}
+      >
+        <TouchableOpacity
+          style={[
+            styles.menuContainer,
+            { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.input.base.backgroundColor }, // Use themed surface
+            { width: menuWidth }
+          ]}
+          activeOpacity={1}
+          onPress={() => {}}
+        >
           <ScrollView style={styles.menuItems}>
             {menuItems.map((item, index) => {
               // Replace the icon with a responsive version
@@ -183,13 +191,8 @@ export function ChromeMenu({
               );
             })}
           </ScrollView>
-        </View>
-        <TouchableOpacity
-          style={styles.closeOverlay}
-          activeOpacity={1}
-          onPress={onClose}
-        />
-      </View>
+        </TouchableOpacity>
+      </TouchableOpacity>
     </Modal>
   );
 }
@@ -200,14 +203,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.6)', 
     flexDirection: 'column',
   } as ViewStyle,
-  closeOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: -1,
-  },
   menuContainer: { // Base styles, dynamic background applied inline
     width: '100%', // width is dynamic
     paddingTop: staticTheme.spacing.sm,
