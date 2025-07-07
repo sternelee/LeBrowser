@@ -34,7 +34,7 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
     fingerprintProtectionEnabled,
     cookieControlEnabled
   } = usePrivacyContext();
-  const { isDarkMode } = useTheme();
+  const { isDarkMode, isMobileMode } = useTheme();
   const dynamicStyles = commonStyles(isDarkMode);
 
   useEffect(() => {
@@ -163,12 +163,14 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
     }
   };
 
-  // WebView custom user agent
-  const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36 SecureBrowser/1.0';
+  // WebView custom user agent - Dynamic based on mobile/desktop mode
+  const mobileUserAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1 SecureBrowser/1.0';
+  const desktopUserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36 SecureBrowser/1.0';
+  const userAgent = isMobileMode ? mobileUserAgent : desktopUserAgent;
 
   return (
     <View style={[
-      styles.container, 
+      styles.container,
       { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor }
     ]}>
       <WebView

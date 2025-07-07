@@ -1,6 +1,6 @@
 import { StyleSheet, ScrollView, Text, View, Switch, TouchableOpacity, Alert, ViewStyle, TextStyle } from 'react-native';
 import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed to staticTheme to avoid conflict
-import { Shield, Lock, Cookie, Trash2, ArrowLeft, Fingerprint, Globe, Settings, Moon, Sun } from 'lucide-react-native';
+import { Shield, Lock, Cookie, Trash2, ArrowLeft, Fingerprint, Globe, Settings, Moon, Sun, Monitor, Smartphone } from 'lucide-react-native';
 import { usePrivacyContext } from '@/context/PrivacyContext';
 import { useTheme } from '@/context/ThemeContext';
 import { useRouter } from 'expo-router';
@@ -28,7 +28,7 @@ export default function PrivacyScreen() {
   const router = useRouter();
   const { isTablet, isDesktop, getIconSize, getFontSize, getResponsivePadding } = useResponsiveSize();
   const { styles: safeAreaStyles } = useSafeArea();
-  const { isDarkMode, toggleTheme } = useTheme();
+  const { isDarkMode, toggleTheme, isMobileMode, toggleUserAgentMode } = useTheme();
 
   const dynamicStyles = commonStyles(isDarkMode);
 
@@ -124,6 +124,27 @@ export default function PrivacyScreen() {
               onValueChange={toggleTheme}
               trackColor={{ false: staticTheme.colors.neutral[300], true: staticTheme.colors.primary.dark }}
               thumbColor={isDarkMode ? staticTheme.colors.primary.main : staticTheme.colors.neutral[100]} // These might need adjustment for light theme
+              ios_backgroundColor={staticTheme.colors.neutral[300]}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.settingRow, styles.settingButton]}>
+            <View style={styles.settingIcon}>
+              {isMobileMode ? <Smartphone size={20} color={dynamicStyles.iconAccent.color} /> : <Monitor size={20} color={dynamicStyles.iconAccent.color} />}
+            </View>
+            <View style={styles.settingContent}>
+              <Text style={[styles.settingLabel, { color: dynamicStyles.text.primary.color }]}>
+                Mobile Mode
+              </Text>
+              <Text style={[styles.settingDescription, { color: dynamicStyles.text.secondary.color }]}>
+                {isMobileMode ? 'Browse as mobile device' : 'Browse as desktop device'}
+              </Text>
+            </View>
+            <Switch
+              value={isMobileMode}
+              onValueChange={toggleUserAgentMode}
+              trackColor={{ false: staticTheme.colors.neutral[300], true: staticTheme.colors.primary.dark }}
+              thumbColor={isMobileMode ? staticTheme.colors.primary.main : staticTheme.colors.neutral[100]}
               ios_backgroundColor={staticTheme.colors.neutral[300]}
             />
           </TouchableOpacity>
