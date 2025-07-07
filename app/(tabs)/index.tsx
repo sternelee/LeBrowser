@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native'; // StatusBar removed
+import { useEffect, useState, useRef } from 'react';
+import { StyleSheet, View, Animated, Easing } from 'react-native'; // StatusBar removed, added Animated and Easing
 import { useRouter } from 'expo-router';
 import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Import commonStyles and staticTheme
 import { useTheme } from '@/context/ThemeContext'; // Import useTheme
@@ -30,20 +30,62 @@ export default function BrowserScreen() {
   const { isPrivateMode, togglePrivateMode } = usePrivacyContext();
   const [menuVisible, setMenuVisible] = useState(false);
   const [addressBarFocused, setAddressBarFocused] = useState(false);
+  const [barsVisible, setBarsVisible] = useState(true);
   const { isLandscape, isTablet, isDesktop } = useResponsiveSize();
   const { styles: safeAreaStyles, insets } = useSafeArea();
   const router = useRouter();
   const { isDarkMode } = useTheme(); // Get theme status
   const dynamicStyles = commonStyles(isDarkMode); // Get dynamic styles
 
+  // Animation values for hiding/showing bars
+  const addressBarAnimatedValue = useRef(new Animated.Value(0)).current;
+  const bottomBarAnimatedValue = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
     loadInitialUrl();
   }, []);
 
+  // Animate bars based on visibility
+  useEffect(() => {
+    const duration = 300;
+    const easing = Easing.out(Easing.cubic);
+
+    // Calculate proper hide distances based on bar heights and safe areas
+    const addressBarHideDistance = -(70 + insets.top);
+    const bottomBarHideDistance = 60 + insets.bottom;
+
+    Animated.parallel([
+      Animated.timing(addressBarAnimatedValue, {
+        toValue: barsVisible ? 0 : addressBarHideDistance, // Slide up to hide completely
+        duration,
+        easing,
+        useNativeDriver: true,
+      }),
+      Animated.timing(bottomBarAnimatedValue, {
+        toValue: barsVisible ? 0 : bottomBarHideDistance, // Slide down to hide completely
+        duration,
+        easing,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [barsVisible, insets.top, insets.bottom]);
+
+  const handleScrollDirectionChange = (direction: 'up' | 'down') => {
+    // Don't hide bars when address bar is focused or in landscape mode
+    if (addressBarFocused || useSideBySideLayout) {
+      return;
+    }
+
+    const shouldShowBars = direction === 'up';
+    if (shouldShowBars !== barsVisible) {
+      setBarsVisible(shouldShowBars);
+    }
+  };
+
   const handleSearchPress = () => {
     // Navigate to search screen or implement search functionality
     console.log('Search pressed');
-    // Example: router.navigate('/search'); 
+    // Example: router.navigate('/search');
   };
 
   const handleBookmarksPress = () => {
@@ -62,6 +104,7 @@ export default function BrowserScreen() {
 
   const handleAddressBarFocus = () => {
     setAddressBarFocused(true);
+    setBarsVisible(true); // Always show bars when address bar is focused
   };
 
   const handleAddressBarBlur = () => {
@@ -122,6 +165,7 @@ export default function BrowserScreen() {
                 <BrowserView
                   url={currentUrl}
                   tabId={currentTab}
+                  onScrollDirectionChange={handleScrollDirectionChange}
                 />
               )}
             </View>
@@ -129,30 +173,56 @@ export default function BrowserScreen() {
         ) : (
           // Standard mobile layout
           <>
-            <ChromeAddressBar
-              url={currentUrl}
-              onSubmit={updateUrl}
-              isLoading={isLoading}
-              isPrivateMode={isPrivateMode}
-              tabsCount={tabs.length}
-              onMenuPress={handleMenuPress}
-              onFocus={handleAddressBarFocus}
-              onBlur={handleAddressBarBlur}
-            />
+            {/* Content area that expands to full height */}
+            <View style={[
+              styles.contentArea,
+              {
+                paddingTop: barsVisible ? 70 : insets.top, // Direct padding based on bar visibility
+                paddingBottom: barsVisible ? 60 : insets.bottom, // Direct padding based on bar visibility
+              }
+            ]}>
+              {!currentUrl && !addressBarFocused ? (
+                <HomeScreen
+                  onSearch={updateUrl}
+                  onFocusSearch={handleAddressBarFocus}
+                />
+              ) : (
+                <BrowserView
+                  url={currentUrl}
+                  tabId={currentTab}
+                  onScrollDirectionChange={handleScrollDirectionChange}
+                />
+              )}
+            </View>
 
-            {!currentUrl && !addressBarFocused ? (
-              <HomeScreen
-                onSearch={updateUrl}
-                onFocusSearch={handleAddressBarFocus}
-              />
-            ) : (
-              <BrowserView
+            {/* Address Bar - Absolutely positioned */}
+            <Animated.View style={[
+              styles.addressBarContainer,
+              safeAreaStyles.safeAreaTop,
+              {
+                transform: [{ translateY: addressBarAnimatedValue }]
+              }
+            ]}>
+              <ChromeAddressBar
                 url={currentUrl}
-                tabId={currentTab}
+                onSubmit={updateUrl}
+                isLoading={isLoading}
+                isPrivateMode={isPrivateMode}
+                tabsCount={tabs.length}
+                onMenuPress={handleMenuPress}
+                onFocus={handleAddressBarFocus}
+                onBlur={handleAddressBarBlur}
               />
-            )}
+            </Animated.View>
 
-            <View style={safeAreaStyles.safeAreaBottom}>
+            {/* Bottom Bar - Absolutely positioned */}
+            <Animated.View style={[
+              styles.bottomBarContainer,
+              safeAreaStyles.safeAreaBottom,
+              {
+                transform: [{ translateY: bottomBarAnimatedValue }]
+              }
+            ]}>
               <ChromeBottomBar
                 refreshPage={refreshPage}
                 onSearchPress={handleSearchPress}
@@ -161,7 +231,7 @@ export default function BrowserScreen() {
                 tabsCount={tabs.length}
                 onLongPressRefresh={handleMenuPress}
               />
-            </View>
+            </Animated.View>
           </>
         )}
       </View>
@@ -199,5 +269,22 @@ const styles = StyleSheet.create({
   mainContentContainer: {
     flex: 1,
     flexDirection: 'column',
+  },
+  contentArea: {
+    flex: 1,
+  },
+  addressBarContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
+  },
+  bottomBarContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1,
   },
 });

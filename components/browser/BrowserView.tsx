@@ -9,13 +9,16 @@ import { useBrowserContext } from '@/context/BrowserContext';
 interface BrowserViewProps {
   url: string;
   tabId: string;
+  onScrollDirectionChange?: (direction: 'up' | 'down') => void;
 }
 
-export function BrowserView({ url, tabId }: BrowserViewProps) {
+export function BrowserView({ url, tabId, onScrollDirectionChange }: BrowserViewProps) {
   const webViewRef = useRef<WebView>(null);
   const [currentUrl, setCurrentUrl] = useState(url);
   const [pageTitle, setPageTitle] = useState('');
   const [pageFavicon, setPageFavicon] = useState<string | undefined>(undefined);
+  const lastScrollY = useRef(0);
+  const scrollDirection = useRef<'up' | 'down' | null>(null);
 
   const {
     setCanGoBack,
@@ -137,6 +140,9 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
       `;
     }
 
+    // Add scroll detection for all pages
+    script += getScrollDetectionScript();
+
     return script;
   };
 
@@ -161,6 +167,59 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
       const httpsUrl = navState.url.replace('http://', 'https://');
       webViewRef.current?.injectJavaScript(`window.location.href = "${httpsUrl}";`);
     }
+  };
+
+  // Handle scroll direction messages from WebView
+  const handleMessage = (event: any) => {
+    try {
+      const data = JSON.parse(event.nativeEvent.data);
+      if (data.type === 'scroll' && onScrollDirectionChange) {
+        const currentScrollY = data.scrollY;
+        const deltaY = currentScrollY - lastScrollY.current;
+
+        // Only trigger direction change if scroll distance is significant (> 10px)
+        if (Math.abs(deltaY) > 10) {
+          const newDirection = deltaY > 0 ? 'down' : 'up';
+
+          // Only call callback if direction actually changed
+          if (scrollDirection.current !== newDirection) {
+            scrollDirection.current = newDirection;
+            onScrollDirectionChange(newDirection);
+          }
+
+          lastScrollY.current = currentScrollY;
+        }
+      }
+    } catch (error) {
+      // Ignore parsing errors for other WebView messages
+    }
+  };
+
+  // Scroll detection JavaScript
+  const getScrollDetectionScript = () => {
+    return `
+      (function() {
+        let lastScrollY = window.pageYOffset;
+        let throttleTimer = null;
+
+        function throttledScrollHandler() {
+          const currentScrollY = window.pageYOffset;
+
+          window.ReactNativeWebView.postMessage(JSON.stringify({
+            type: 'scroll',
+            scrollY: currentScrollY
+          }));
+
+          throttleTimer = null;
+        }
+
+        window.addEventListener('scroll', function() {
+          if (throttleTimer === null) {
+            throttleTimer = setTimeout(throttledScrollHandler, 16); // ~60fps
+          }
+        }, { passive: true });
+      })();
+    `;
   };
 
   // WebView custom user agent - Dynamic based on mobile/desktop mode
@@ -197,6 +256,7 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
         incognito={isPrivateMode}
         userAgent={userAgent}
         pullToRefreshEnabled={true}
+        onMessage={handleMessage}
       />
     </View>
   );
