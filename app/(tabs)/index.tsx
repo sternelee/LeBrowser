@@ -13,6 +13,7 @@ import { HomeScreen } from '@/components/browser/HomeScreen';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
 import { useSafeArea } from '@/hooks/useSafeArea';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AIChatPanel from '@/components/browser/AIChatPanel';
 
 export default function BrowserScreen() {
   const {
@@ -24,13 +25,15 @@ export default function BrowserScreen() {
     currentUrl,
     updateUrl,
     isLoading,
-    addNewTab
+    addNewTab,
   } = useBrowserContext();
 
   const { isPrivateMode, togglePrivateMode } = usePrivacyContext();
   const [menuVisible, setMenuVisible] = useState(false);
   const [addressBarFocused, setAddressBarFocused] = useState(false);
   const [barsVisible, setBarsVisible] = useState(true);
+
+  const [aiChatVisible, setAiChatVisible] = useState(false);
   const { isLandscape, isTablet, isDesktop } = useResponsiveSize();
   const { styles: safeAreaStyles, insets } = useSafeArea();
   const router = useRouter();
@@ -119,21 +122,32 @@ export default function BrowserScreen() {
       style={[
         styles.container,
         { backgroundColor: dynamicStyles.container.base.backgroundColor },
-        isPrivateMode && { backgroundColor: dynamicStyles.privateMode.backgroundColor } // Apply dynamic private background
+        isPrivateMode && {
+          backgroundColor: dynamicStyles.privateMode.backgroundColor,
+        }, // Apply dynamic private background
       ]}
       edges={['left', 'right']}
     >
       {/* StatusBar is now handled in app/_layout.tsx */}
 
-      <View style={[
-        styles.browserContainer,
-        useSideBySideLayout && styles.landscapeContainer,
-        safeAreaStyles.safeAreaTop
-      ]}>
+      <View
+        style={[
+          styles.browserContainer,
+          useSideBySideLayout && styles.landscapeContainer,
+          safeAreaStyles.safeAreaTop,
+        ]}
+      >
         {useSideBySideLayout ? (
           // Side-by-side layout for tablets and desktops in landscape
           <>
-            <View style={[styles.sidebarContainer, { borderRightColor: dynamicStyles.button.secondary.borderColor }]}>
+            <View
+              style={[
+                styles.sidebarContainer,
+                {
+                  borderRightColor: dynamicStyles.button.secondary.borderColor,
+                },
+              ]}
+            >
               <ChromeBottomBar
                 refreshPage={refreshPage}
                 onSearchPress={handleSearchPress}
@@ -174,13 +188,15 @@ export default function BrowserScreen() {
           // Standard mobile layout
           <>
             {/* Content area that expands to full height */}
-            <View style={[
-              styles.contentArea,
-              {
-                paddingTop: barsVisible ? 70 : insets.top, // Direct padding based on bar visibility
-                paddingBottom: barsVisible ? 60 : insets.bottom, // Direct padding based on bar visibility
-              }
-            ]}>
+            <View
+              style={[
+                styles.contentArea,
+                {
+                  paddingTop: barsVisible ? 70 : insets.top, // Direct padding based on bar visibility
+                  paddingBottom: barsVisible ? 60 : insets.bottom, // Direct padding based on bar visibility
+                },
+              ]}
+            >
               {!currentUrl && !addressBarFocused ? (
                 <HomeScreen
                   onSearch={updateUrl}
@@ -196,13 +212,15 @@ export default function BrowserScreen() {
             </View>
 
             {/* Address Bar - Absolutely positioned */}
-            <Animated.View style={[
-              styles.addressBarContainer,
-              safeAreaStyles.safeAreaTop,
-              {
-                transform: [{ translateY: addressBarAnimatedValue }]
-              }
-            ]}>
+            <Animated.View
+              style={[
+                styles.addressBarContainer,
+                safeAreaStyles.safeAreaTop,
+                {
+                  transform: [{ translateY: addressBarAnimatedValue }],
+                },
+              ]}
+            >
               <ChromeAddressBar
                 url={currentUrl}
                 onSubmit={updateUrl}
@@ -216,13 +234,15 @@ export default function BrowserScreen() {
             </Animated.View>
 
             {/* Bottom Bar - Absolutely positioned */}
-            <Animated.View style={[
-              styles.bottomBarContainer,
-              safeAreaStyles.safeAreaBottom,
-              {
-                transform: [{ translateY: bottomBarAnimatedValue }]
-              }
-            ]}>
+            <Animated.View
+              style={[
+                styles.bottomBarContainer,
+                safeAreaStyles.safeAreaBottom,
+                {
+                  transform: [{ translateY: bottomBarAnimatedValue }],
+                },
+              ]}
+            >
               <ChromeBottomBar
                 refreshPage={refreshPage}
                 onSearchPress={handleSearchPress}
@@ -244,12 +264,24 @@ export default function BrowserScreen() {
         isPrivateMode={isPrivateMode}
         togglePrivateMode={togglePrivateMode}
       />
+
+      <AIChatPanel
+        visible={aiChatVisible}
+        onClose={() => setAiChatVisible(false)}
+        currentPageTitle={''}
+        currentPageUrl={currentUrl}
+        currentPageContent={''}
+        selectedText={''}
+        aiConfigured={true}
+        onConfigureAI={() => {}}
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { // Base container style, backgroundColor will be applied dynamically
+  container: {
+    // Base container style, backgroundColor will be applied dynamically
     flex: 1,
   },
   // privateContainer style object removed from StyleSheet as it's now fully dynamic inline
