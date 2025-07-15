@@ -1,3 +1,5 @@
+import { fetch } from 'expo/fetch';
+import { type Message } from 'xsai';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -15,8 +17,8 @@ import {
 } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 import { useTheme } from '@/context/ThemeContext'; // Import useTheme
-import { streamText, generateText } from 'xsai';
 import { createDeepSeek } from '@xsai-ext/providers-cloud';
+import { generateText } from '@/utils/ai';
 
 interface AIChatPanelProps {
   visible: boolean;
@@ -84,37 +86,34 @@ export default function AIChatPanel({
 
     const deepseek = createDeepSeek('');
     console.log('deepseek:', deepseek);
-    try {
-      const { text } = await generateText({
-        ...deepseek.chat('deepseek-chat'),
-        messages: [
-          {
-            content: 'You are a helpful assistant.',
-            role: 'system',
-          },
-          {
-            content:
-              'This is a test, so please answer' +
-              "'The quick brown fox jumps over the lazy dog.'" +
-              'and nothing else.',
-            role: 'user',
-          },
-        ],
-      });
-      // const text: string[] = [];
-      //
-      // console.log('Streaming text...', textStream);
-      //
-      // for await (const textPart of textStream) {
-      //   text.push(textPart);
-      // }
-
-      // "The quick brown fox jumps over the lazy dog."
-      console.log(text);
-    } catch (error) {
-      console.error('Failed to generate text:', error);
-    }
-
+    const body = {
+      ...deepseek.chat('deepseek-chat'),
+      messages: [
+        {
+          content: 'You are a helpful assistant.',
+          role: 'system',
+        },
+        {
+          content:
+            'This is a test, so please answer' +
+            "'The quick brown fox jumps over the lazy dog.'" +
+            'and nothing else.',
+          role: 'user',
+        },
+      ],
+    };
+    const response = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer sk-d7987cc9db8e4774a0362c27f6dc2cdc`,
+      },
+      body: JSON.stringify(body),
+    }).then((res) => res.json());
+    console.log('response:', response);
+    // @ts-ignore
+    const json = await generateText(response, body);
+    console.log('json:', json);
     if (!aiConfigured) {
       Alert.alert(
         'AI Not Configured',
@@ -127,17 +126,7 @@ export default function AIChatPanel({
       return;
     }
 
-    try {
-      // Use sendMessage function from useChat
-      // sendMessage({
-      //   role: 'user',
-      //   parts: [{ type: 'text', text: inputText.trim() }],
-      // });
-      setInputText('');
-    } catch (error) {
-      console.error('Failed to send message:', error);
-      Alert.alert('Error', 'Failed to send message. Please try again.');
-    }
+    setInputText('');
   };
 
   const handleClearHistory = () => {
@@ -275,16 +264,11 @@ export default function AIChatPanel({
     );
   };
 
-  const getMessageContent = (message: any): string => {
-    // Extract text from parts - UIMessage uses parts structure
-    if (!message.parts || message.parts.length === 0) {
-      return '';
+  const getMessageContent = (message: Message): string => {
+    if (message.role === 'assistant') {
+      return message.content;
     }
-
-    return message.parts
-      .filter((part) => part.type === 'text')
-      .map((part) => part.text)
-      .join('\n');
+    return '';
   };
 
   const renderMessage = ({ item }: { item: any }) => {
