@@ -6,6 +6,7 @@ if (Platform.OS !== 'web') {
   const setupPolyfills = async () => {
     // @ts-ignore
     const { polyfillGlobal } = await import(
+      // @ts-ignore
       'react-native/Libraries/Utilities/PolyfillFunctions'
     );
 

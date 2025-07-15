@@ -1,6 +1,4 @@
-import { useChat } from '@ai-sdk/react';
 import { Ionicons } from '@expo/vector-icons';
-import { DefaultChatTransport, UIMessage } from 'ai';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
@@ -44,32 +42,14 @@ export default function AIChatPanel({
   const [inputText, setInputText] = useState('');
   const flatListRef = useRef<FlatList>(null);
   const inputRef = useRef<TextInput>(null);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [error, setError] = useState<any>(null);
+  const [status, setStatus] = useState<
+    'idle' | 'loading' | 'streaming' | 'error' | 'done'
+  >('idle');
+  const [isLoading, setIsLoading] = useState(false);
 
   const { isDarkMode } = useTheme(); // Get theme status
-
-  // Use useChat hook directly in the component
-  const {
-    messages,
-    error,
-    setMessages,
-    sendMessage,
-    regenerate,
-    status,
-    stop,
-  } = useChat<UIMessage>({
-    transport: new DefaultChatTransport({
-      api: '/api/chat',
-    }),
-    onError: (error) => {
-      console.error('Chat error:', error);
-      Alert.alert('Chat Error', error.message);
-    },
-    onFinish: (message) => {
-      console.log('Chat finished:', message);
-    },
-  });
-
-  const isLoading = status === 'submitted' || status === 'streaming';
 
   // Auto-scroll to bottom when new messages are added
   useEffect(() => {
@@ -126,7 +106,6 @@ export default function AIChatPanel({
 
     // "The quick brown fox jumps over the lazy dog."
     console.log(text);
-    return;
 
     if (!aiConfigured) {
       Alert.alert(
@@ -142,10 +121,10 @@ export default function AIChatPanel({
 
     try {
       // Use sendMessage function from useChat
-      sendMessage({
-        role: 'user',
-        parts: [{ type: 'text', text: inputText.trim() }],
-      });
+      // sendMessage({
+      //   role: 'user',
+      //   parts: [{ type: 'text', text: inputText.trim() }],
+      // });
       setInputText('');
     } catch (error) {
       console.error('Failed to send message:', error);
@@ -288,7 +267,7 @@ export default function AIChatPanel({
     );
   };
 
-  const getMessageContent = (message: UIMessage): string => {
+  const getMessageContent = (message: any): string => {
     // Extract text from parts - UIMessage uses parts structure
     if (!message.parts || message.parts.length === 0) {
       return '';
@@ -300,7 +279,7 @@ export default function AIChatPanel({
       .join('\n');
   };
 
-  const renderMessage = ({ item }: { item: UIMessage }) => {
+  const renderMessage = ({ item }: { item: any }) => {
     const content = getMessageContent(item);
 
     return (
@@ -396,7 +375,7 @@ export default function AIChatPanel({
       </Text>
       <TouchableOpacity
         style={[styles.retryButton, { backgroundColor: '#007AFF' }]}
-        onPress={() => regenerate()}
+        onPress={() => {}}
       >
         <Text style={[styles.retryButtonText, { color: '#FFFFFF' }]}>
           Retry
