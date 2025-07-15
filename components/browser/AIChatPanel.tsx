@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 import { useTheme } from '@/context/ThemeContext'; // Import useTheme
-import { streamText } from 'xsai';
+import { streamText, generateText } from 'xsai';
 import { createDeepSeek } from '@xsai-ext/providers-cloud';
 
 interface AIChatPanelProps {
@@ -80,32 +80,40 @@ export default function AIChatPanel({
   const handleSendMessage = async () => {
     if (!inputText.trim() || isLoading) return;
 
-    const deepseek = createDeepSeek('sk-d7987cc9db8e4774a0362c27f6dc2cdc');
-    const { textStream } = await streamText({
-      ...deepseek.chat('deepseek-chat'),
-      messages: [
-        {
-          content: 'You are a helpful assistant.',
-          role: 'system',
-        },
-        {
-          content:
-            'This is a test, so please answer' +
-            "'The quick brown fox jumps over the lazy dog.'" +
-            'and nothing else.',
-          role: 'user',
-        },
-      ],
-      model: 'gpt-4o',
-    });
-    const text: string[] = [];
+    console.log('Ask AI:', inputText);
 
-    for await (const textPart of textStream) {
-      text.push(textPart);
+    const deepseek = createDeepSeek('');
+    console.log('deepseek:', deepseek);
+    try {
+      const { text } = await generateText({
+        ...deepseek.chat('deepseek-chat'),
+        messages: [
+          {
+            content: 'You are a helpful assistant.',
+            role: 'system',
+          },
+          {
+            content:
+              'This is a test, so please answer' +
+              "'The quick brown fox jumps over the lazy dog.'" +
+              'and nothing else.',
+            role: 'user',
+          },
+        ],
+      });
+      // const text: string[] = [];
+      //
+      // console.log('Streaming text...', textStream);
+      //
+      // for await (const textPart of textStream) {
+      //   text.push(textPart);
+      // }
+
+      // "The quick brown fox jumps over the lazy dog."
+      console.log(text);
+    } catch (error) {
+      console.error('Failed to generate text:', error);
     }
-
-    // "The quick brown fox jumps over the lazy dog."
-    console.log(text);
 
     if (!aiConfigured) {
       Alert.alert(

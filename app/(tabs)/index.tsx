@@ -33,7 +33,7 @@ export default function BrowserScreen() {
   const [addressBarFocused, setAddressBarFocused] = useState(false);
   const [barsVisible, setBarsVisible] = useState(true);
 
-  const [aiChatVisible, setAiChatVisible] = useState(false);
+  const [aiChatVisible, setAiChatVisible] = useState(true);
   const { isLandscape, isTablet, isDesktop } = useResponsiveSize();
   const { styles: safeAreaStyles, insets } = useSafeArea();
   const router = useRouter();
