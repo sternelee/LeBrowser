@@ -1,12 +1,19 @@
-import { StyleSheet, View, TouchableOpacity, Text, ViewStyle, TextStyle } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Text,
+  ViewStyle,
+  TextStyle,
+} from 'react-native';
 import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed theme, imported commonStyles
 import { useTheme } from '@/context/ThemeContext'; // Import useTheme
 import {
   Home,
   Bookmark, // Changed from Layers
-  Search,   // Added Search icon
-  Layers,   // Kept for Tabs
-  RefreshCw
+  Search, // Added Search icon
+  Layers, // Kept for Tabs
+  RefreshCw,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
@@ -26,10 +33,16 @@ export function ChromeBottomBar({
   onBookmarksPress,
   isPrivateMode,
   tabsCount,
-  onLongPressRefresh
+  onLongPressRefresh,
 }: ChromeBottomBarProps) {
   const router = useRouter();
-  const { isTablet, isDesktop, getIconSize, getFontSize, getResponsivePadding } = useResponsiveSize();
+  const {
+    isTablet,
+    isDesktop,
+    getIconSize,
+    getFontSize,
+    getResponsivePadding,
+  } = useResponsiveSize();
   const { isDarkMode } = useTheme(); // Get theme status
   const dynamicStyles = commonStyles(isDarkMode); // Get dynamic styles
 
@@ -49,18 +62,28 @@ export function ChromeBottomBar({
     <View
       style={[
         styles.container,
-        { 
-          backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor,
-          borderTopColor: isPrivateMode ? (isDarkMode ? staticTheme.colors.neutral[300] : staticTheme.colors.neutral[200]) : dynamicStyles.button.secondary.borderColor, // Adjust private border
+        {
+          backgroundColor: isPrivateMode
+            ? dynamicStyles.privateMode.backgroundColor
+            : dynamicStyles.container.base.backgroundColor,
+          borderTopColor: isPrivateMode
+            ? isDarkMode
+              ? staticTheme.colors.neutral[300]
+              : staticTheme.colors.neutral[200]
+            : dynamicStyles.button.secondary.borderColor, // Adjust private border
         },
         { height: containerHeight },
         isTablet && styles.tabletContainer,
-        isDesktop && styles.desktopContainer
+        isDesktop && styles.desktopContainer,
       ]}
     >
       {/* Home Button */}
       <TouchableOpacity
-        style={[styles.button, isTablet && styles.tabletButton, isDesktop && styles.desktopButton]}
+        style={[
+          styles.button,
+          isTablet && styles.tabletButton,
+          isDesktop && styles.desktopButton,
+        ]}
         onPress={navigateHome}
       >
         <Home size={iconSize} color={dynamicStyles.icon.color} />
@@ -68,7 +91,11 @@ export function ChromeBottomBar({
 
       {/* Bookmarks Button */}
       <TouchableOpacity
-        style={[styles.button, isTablet && styles.tabletButton, isDesktop && styles.desktopButton]}
+        style={[
+          styles.button,
+          isTablet && styles.tabletButton,
+          isDesktop && styles.desktopButton,
+        ]}
         onPress={onBookmarksPress}
       >
         <Bookmark size={iconSize} color={dynamicStyles.icon.color} />
@@ -76,28 +103,43 @@ export function ChromeBottomBar({
 
       {/* Search Button */}
       <TouchableOpacity
-        style={[styles.button, isTablet && styles.tabletButton, isDesktop && styles.desktopButton]}
+        style={[
+          styles.button,
+          isTablet && styles.tabletButton,
+          isDesktop && styles.desktopButton,
+        ]}
         onPress={onSearchPress}
       >
         <Search size={iconSize} color={dynamicStyles.icon.color} />
       </TouchableOpacity>
-      
+
       {/* Tabs Button */}
       <TouchableOpacity
-        style={[styles.tabButton, isTablet && styles.tabletButton, isDesktop && styles.desktopButton]}
+        style={[
+          styles.tabButton,
+          isTablet && styles.tabletButton,
+          isDesktop && styles.desktopButton,
+        ]}
         onPress={navigateToTabs}
       >
         <Layers size={iconSize} color={dynamicStyles.icon.color} />
-        <View style={[
-            styles.tabCountBadge, 
+        <View
+          style={[
+            styles.tabCountBadge,
             { backgroundColor: staticTheme.colors.primary.main }, // Keeping original badge color
-            isTablet && styles.tabletBadge, 
-            isDesktop && styles.desktopBadge
-        ]}>
-          <Text style={[
-              styles.tabCountText, 
-              { color: staticTheme.colors.neutral[900], fontSize: fontSize * 0.7 } // Keeping original badge text color
-          ]}>
+            isTablet && styles.tabletBadge,
+            isDesktop && styles.desktopBadge,
+          ]}
+        >
+          <Text
+            style={[
+              styles.tabCountText,
+              {
+                color: staticTheme.colors.neutral[900],
+                fontSize: fontSize * 0.7,
+              }, // Keeping original badge text color
+            ]}
+          >
             {tabsCount}
           </Text>
         </View>
@@ -105,7 +147,11 @@ export function ChromeBottomBar({
 
       {/* Refresh Button */}
       <TouchableOpacity
-        style={[styles.button, isTablet && styles.tabletButton, isDesktop && styles.desktopButton]}
+        style={[
+          styles.button,
+          isTablet && styles.tabletButton,
+          isDesktop && styles.desktopButton,
+        ]}
         onPress={refreshPage}
         onLongPress={onLongPressRefresh}
         delayLongPress={500}
@@ -117,7 +163,8 @@ export function ChromeBottomBar({
 }
 
 const styles = StyleSheet.create({
-  container: { // Base styles, dynamic ones applied inline
+  container: {
+    // Base styles, dynamic ones applied inline
     flexDirection: 'row' as const,
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -156,7 +203,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     position: 'relative',
   } as ViewStyle,
-  tabCountBadge: { // Base styles, dynamic background and text color applied inline
+  tabCountBadge: {
+    // Base styles, dynamic background and text color applied inline
     position: 'absolute',
     top: staticTheme.spacing.xs,
     right: staticTheme.spacing.xs,
@@ -179,7 +227,8 @@ const styles = StyleSheet.create({
     minWidth: 24,
     height: 24,
   } as ViewStyle,
-  tabCountText: { // Base style, dynamic color applied inline
+  tabCountText: {
+    // Base style, dynamic color applied inline
     fontSize: staticTheme.typography.sizes.xs, // Base size, overridden inline for badge
     fontFamily: staticTheme.typography.families.sansBold,
   } as TextStyle,

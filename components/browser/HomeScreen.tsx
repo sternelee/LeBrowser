@@ -24,25 +24,25 @@ function Shortcut({ title, url, icon, onPress, isPrivateMode }: ShortcutProps) {
   return (
     <TouchableOpacity style={styles.shortcutItem} onPress={onPress}>
       <View style={[
-        styles.shortcutIcon, 
+        styles.shortcutIcon,
         { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.input.base.backgroundColor }
       ]}>
         {icon ? (
           <Image source={{ uri: icon }} style={styles.shortcutIconImage} />
         ) : (
           <Text style={[
-            styles.shortcutIconText, 
+            styles.shortcutIconText,
             { color: isPrivateMode ? dynamicStyles.text.primary.color : dynamicStyles.text.primary.color }
           ]}>
             {title.charAt(0).toUpperCase()}
           </Text>
         )}
       </View>
-      <Text 
+      <Text
         style={[
-          styles.shortcutTitle, 
+          styles.shortcutTitle,
           { color: isPrivateMode ? dynamicStyles.text.secondary.color : dynamicStyles.text.secondary.color }
-        ]} 
+        ]}
         numberOfLines={1}
       >
         {title}
@@ -57,7 +57,7 @@ interface HomeScreenProps {
 }
 
 export function HomeScreen({ onSearch, onFocusSearch }: HomeScreenProps) {
-  const { navigateToUrl, shortcuts } = useBrowserContext();
+  const { navigateToUrl, shortcuts, currentHomepage, currentSearchEngine, customHomepageUrl } = useBrowserContext();
   const { isPrivateMode } = usePrivacyContext();
   const { isTablet, isDesktop } = useResponsiveSize();
   const { isDarkMode } = useTheme(); // Get theme status
@@ -67,24 +67,26 @@ export function HomeScreen({ onSearch, onFocusSearch }: HomeScreenProps) {
   const numColumns = isDesktop ? 5 : isTablet ? 4 : 4;
 
   return (
-    <ScrollView 
+    <ScrollView
       style={[
-        styles.container, 
+        styles.container,
         { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor }
       ]}
       contentContainerStyle={styles.contentContainer}
     >
-      {/* Google Logo */}
+      {/* Homepage Logo */}
       <View style={styles.logoContainer}>
-        <Text style={[styles.logoText, { color: dynamicStyles.text.primary.color }]}>Google</Text>
+        <Text style={[styles.logoText, { color: dynamicStyles.text.primary.color }]}>
+          {currentSearchEngine.name}
+        </Text>
       </View>
 
       {/* Search Bar */}
-      <TouchableOpacity 
+      <TouchableOpacity
         style={[
-          styles.searchBar, 
+          styles.searchBar,
           { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.input.base.backgroundColor }
-        ]} 
+        ]}
         onPress={onFocusSearch}
         activeOpacity={0.8}
       >
@@ -116,7 +118,7 @@ export function HomeScreen({ onSearch, onFocusSearch }: HomeScreenProps) {
 
       {/* Discover Section */}
       <View style={[
-        styles.discoverSection, 
+        styles.discoverSection,
         { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.input.base.backgroundColor }
       ]}>
         <View style={styles.discoverHeader}>
