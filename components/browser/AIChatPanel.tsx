@@ -1,4 +1,4 @@
-import { fetch } from 'expo/fetch';
+import { fetch, FetchRequestInit } from 'expo/fetch';
 import { type Message } from 'xsai';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useRef, useState } from 'react';
@@ -84,36 +84,55 @@ export default function AIChatPanel({
 
     console.log('Ask AI:', inputText);
 
-    const deepseek = createDeepSeek('');
+    // const body = {
+    //   ...deepseek.chat('deepseek-chat'),
+    //   messages: [
+    //     {
+    //       content: 'You are a helpful assistant.',
+    //       role: 'system',
+    //     },
+    //     {
+    //       content:
+    //         'This is a test, so please answer' +
+    //         "'The quick brown fox jumps over the lazy dog.'" +
+    //         'and nothing else.',
+    //       role: 'user',
+    //     },
+    //   ],
+    // };
+    // const response = await fetch('https://api.deepseek.com/chat/completions', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     Authorization: `Bearer sk-d7987cc9db8e4774a0362c27f6dc2cdc`,
+    //   },
+    //   body: JSON.stringify(body),
+    // }).then((res) => res.json());
+    // console.log('response:', response);
+    // // @ts-ignore
+    const deepseek = createDeepSeek('sk-d7987cc9db8e4774a0362c27f6dc2cdc');
     console.log('deepseek:', deepseek);
-    const body = {
-      ...deepseek.chat('deepseek-chat'),
-      messages: [
-        {
-          content: 'You are a helpful assistant.',
-          role: 'system',
-        },
-        {
-          content:
-            'This is a test, so please answer' +
-            "'The quick brown fox jumps over the lazy dog.'" +
-            'and nothing else.',
-          role: 'user',
-        },
-      ],
-    };
-    const response = await fetch('https://api.deepseek.com/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer sk-d7987cc9db8e4774a0362c27f6dc2cdc`,
-      },
-      body: JSON.stringify(body),
-    }).then((res) => res.json());
-    console.log('response:', response);
-    // @ts-ignore
-    const json = await generateText(response, body);
-    console.log('json:', json);
+    try {
+      const { text } = await generateText({
+        ...deepseek.chat('deepseek-chat'),
+        messages: [
+          {
+            content: 'You are a helpful assistant.',
+            role: 'system',
+          },
+          {
+            content:
+              'This is a test, so please answer' +
+              "'The quick brown fox jumps over the lazy dog.'" +
+              'and nothing else.',
+            role: 'user',
+          },
+        ],
+      });
+      console.log('json:', text);
+    } catch (error) {
+      console.log('error:', error);
+    }
     if (!aiConfigured) {
       Alert.alert(
         'AI Not Configured',
@@ -266,7 +285,7 @@ export default function AIChatPanel({
 
   const getMessageContent = (message: Message): string => {
     if (message.role === 'assistant') {
-      return message.content;
+      // return message.content;
     }
     return '';
   };
