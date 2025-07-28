@@ -23,7 +23,7 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
     setIsLoading,
     updateTabInfo,
     setCurrentUrl: setContextUrl,
-    addHistoryItem
+    addHistoryItem,
   } = useBrowserContext();
 
   const {
@@ -32,7 +32,7 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
     scriptBlockingEnabled,
     httpsOnlyEnabled,
     fingerprintProtectionEnabled,
-    cookieControlEnabled
+    cookieControlEnabled,
   } = usePrivacyContext();
   const { isDarkMode } = useTheme();
   const dynamicStyles = commonStyles(isDarkMode);
@@ -157,20 +157,33 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
     });
 
     // Check for HTTPS enforcement
-    if (httpsOnlyEnabled && navState.url.startsWith('http:') && !navState.url.startsWith('http://localhost')) {
+    if (
+      httpsOnlyEnabled &&
+      navState.url.startsWith('http:') &&
+      !navState.url.startsWith('http://localhost')
+    ) {
       const httpsUrl = navState.url.replace('http://', 'https://');
-      webViewRef.current?.injectJavaScript(`window.location.href = "${httpsUrl}";`);
+      webViewRef.current?.injectJavaScript(
+        `window.location.href = "${httpsUrl}";`,
+      );
     }
   };
 
   // WebView custom user agent
-  const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36 SecureBrowser/1.0';
+  const userAgent =
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36 SecureBrowser/1.0';
 
   return (
-    <View style={[
-      styles.container, 
-      { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor }
-    ]}>
+    <View
+      style={[
+        styles.container,
+        {
+          backgroundColor: isPrivateMode
+            ? dynamicStyles.privateMode.backgroundColor
+            : dynamicStyles.container.base.backgroundColor,
+        },
+      ]}
+    >
       <WebView
         ref={webViewRef}
         source={{ uri: currentUrl || 'https://www.google.com' }}
@@ -185,7 +198,7 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
               url: currentUrl,
               title: pageTitle || currentUrl, // Use stored pageTitle
               timestamp: Date.now(),
-              favicon: pageFavicon // Use stored pageFavicon
+              favicon: pageFavicon, // Use stored pageFavicon
             });
           }
         }}
@@ -201,7 +214,8 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
 }
 
 const styles = StyleSheet.create({
-  container: { // Base style, background color applied inline
+  container: {
+    // Base style, background color applied inline
     flex: 1,
   },
   webView: {

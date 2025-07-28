@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, View, TextInput, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  Platform,
+} from 'react-native';
 import { Search, Lock, X, Menu } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
@@ -10,11 +17,16 @@ interface AddressBarProps {
   isPrivateMode: boolean;
 }
 
-export function AddressBar({ url, onSubmit, isLoading, isPrivateMode }: AddressBarProps) {
+export function AddressBar({
+  url,
+  onSubmit,
+  isLoading,
+  isPrivateMode,
+}: AddressBarProps) {
   const [inputValue, setInputValue] = useState(url);
   const [isFocused, setIsFocused] = useState(false);
   const router = useRouter();
-  
+
   useEffect(() => {
     if (url !== inputValue && !isFocused) {
       setInputValue(url);
@@ -38,30 +50,40 @@ export function AddressBar({ url, onSubmit, isLoading, isPrivateMode }: AddressB
   const handleClear = () => {
     setInputValue('');
   };
-  
+
   const isSecure = url.startsWith('https://');
-  
+
   return (
     <View style={[styles.container, isPrivateMode && styles.privateContainer]}>
       <View style={styles.addressBarContainer}>
-        <View style={[
-          styles.inputContainer,
-          isFocused && styles.inputContainerFocused,
-          isPrivateMode && styles.privateInputContainer,
-          isFocused && isPrivateMode && styles.privateInputContainerFocused,
-        ]}>
+        <View
+          style={[
+            styles.inputContainer,
+            isFocused && styles.inputContainerFocused,
+            isPrivateMode && styles.privateInputContainer,
+            isFocused && isPrivateMode && styles.privateInputContainerFocused,
+          ]}
+        >
           {isLoading ? (
-            <ActivityIndicator size="small" color={isPrivateMode ? '#1DB954' : '#1DB954'} style={styles.icon} />
+            <ActivityIndicator
+              size="small"
+              color={isPrivateMode ? '#1DB954' : '#1DB954'}
+              style={styles.icon}
+            />
           ) : (
             <>
               {isSecure ? (
-                <Lock size={16} color={isPrivateMode ? '#1DB954' : '#1DB954'} style={styles.icon} />
+                <Lock
+                  size={16}
+                  color={isPrivateMode ? '#1DB954' : '#1DB954'}
+                  style={styles.icon}
+                />
               ) : (
                 <Search size={16} color="#B3B3B3" style={styles.icon} />
               )}
             </>
           )}
-          
+
           <TextInput
             style={[styles.input, isPrivateMode && styles.privateInput]}
             value={inputValue}
@@ -76,15 +98,15 @@ export function AddressBar({ url, onSubmit, isLoading, isPrivateMode }: AddressB
             returnKeyType="go"
             selectTextOnFocus
           />
-          
+
           {inputValue !== '' && isFocused && (
             <TouchableOpacity onPress={handleClear} style={styles.clearButton}>
               <X size={16} color="#B3B3B3" />
             </TouchableOpacity>
           )}
         </View>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           style={styles.menuButton}
           onPress={() => router.push('/privacy')}
         >
@@ -166,3 +188,4 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
+

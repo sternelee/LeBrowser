@@ -1,4 +1,13 @@
-import { StyleSheet, Text, View, TouchableOpacity, Image, ViewStyle, TextStyle, ImageStyle } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Image,
+  ViewStyle,
+  TextStyle,
+  ImageStyle,
+} from 'react-native';
 import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed theme, import commonStyles
 import { useTheme } from '@/context/ThemeContext'; // Import useTheme
 import { Globe, X } from 'lucide-react-native';
@@ -13,14 +22,14 @@ interface TabPreviewProps {
   isPrivateMode: boolean;
 }
 
-export function TabPreview({ 
-  title, 
-  url, 
-  isActive, 
-  onPress, 
-  onClose, 
+export function TabPreview({
+  title,
+  url,
+  isActive,
+  onPress,
+  onClose,
   favicon,
-  isPrivateMode
+  isPrivateMode,
 }: TabPreviewProps) {
   const { isDarkMode } = useTheme();
   const dynamicStyles = commonStyles(isDarkMode);
@@ -32,43 +41,50 @@ export function TabPreview({
         .replace(/^www\./, '')
         .split('/')[0]
     : '';
-  
+
   return (
     <TouchableOpacity
       style={[
         styles.container,
-        { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.input.base.backgroundColor },
-        isActive && { borderColor: dynamicStyles.iconAccent.color, borderWidth: 2 }, // Use accent for active border
+        {
+          backgroundColor: isPrivateMode
+            ? dynamicStyles.privateMode.backgroundColor
+            : dynamicStyles.input.base.backgroundColor,
+        },
+        isActive && {
+          borderColor: dynamicStyles.iconAccent.color,
+          borderWidth: 2,
+        }, // Use accent for active border
         // isActive && isPrivateMode && { borderColor: dynamicStyles.iconAccent.color } // Keep accent for private active?
       ]}
       onPress={onPress}
       activeOpacity={0.7}
     >
       <View style={styles.content}>
-        <View style={[
-          styles.iconContainer, 
-          { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor }
-        ]}>
+        <View
+          style={[
+            styles.iconContainer,
+            {
+              backgroundColor: isPrivateMode
+                ? dynamicStyles.privateMode.backgroundColor
+                : dynamicStyles.container.base.backgroundColor,
+            },
+          ]}
+        >
           {favicon ? (
             <Image source={{ uri: favicon }} style={styles.favicon} />
           ) : (
-            <Globe
-              size={20}
-              color={dynamicStyles.text.secondary.color}
-            />
+            <Globe size={20} color={dynamicStyles.text.secondary.color} />
           )}
         </View>
         <View style={styles.textContainer}>
-          <Text 
-            style={[
-              styles.title,
-              { color: dynamicStyles.text.primary.color }
-            ]}
+          <Text
+            style={[styles.title, { color: dynamicStyles.text.primary.color }]}
             numberOfLines={1}
           >
             {title || 'New Tab'}
           </Text>
-          <Text 
+          <Text
             style={[styles.url, { color: dynamicStyles.text.secondary.color }]}
             numberOfLines={1}
           >
@@ -76,9 +92,9 @@ export function TabPreview({
           </Text>
         </View>
       </View>
-      
-      <TouchableOpacity 
-        style={styles.closeButton} 
+
+      <TouchableOpacity
+        style={styles.closeButton}
         onPress={onClose}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
@@ -89,7 +105,8 @@ export function TabPreview({
 }
 
 const styles = StyleSheet.create({
-  container: { // Base styles, dynamic background applied inline
+  container: {
+    // Base styles, dynamic background applied inline
     flexDirection: 'row' as const,
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -105,7 +122,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row' as const,
     alignItems: 'center',
   } as ViewStyle,
-  iconContainer: { // Base styles, dynamic background applied inline
+  iconContainer: {
+    // Base styles, dynamic background applied inline
     width: 36,
     height: 36,
     justifyContent: 'center' as const,
@@ -121,13 +139,15 @@ const styles = StyleSheet.create({
   textContainer: {
     flex: 1,
   } as ViewStyle,
-  title: { // Base style, dynamic color applied inline
+  title: {
+    // Base style, dynamic color applied inline
     fontFamily: staticTheme.typography.families.sansMedium,
     fontSize: staticTheme.typography.sizes.base,
     marginBottom: staticTheme.spacing.xs,
   } as TextStyle,
   // privateTitle removed
-  url: { // Base style, dynamic color applied inline
+  url: {
+    // Base style, dynamic color applied inline
     fontFamily: staticTheme.typography.families.sans,
     fontSize: staticTheme.typography.sizes.sm,
   } as TextStyle,

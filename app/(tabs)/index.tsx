@@ -24,7 +24,7 @@ export default function BrowserScreen() {
     currentUrl,
     updateUrl,
     isLoading,
-    addNewTab
+    addNewTab,
   } = useBrowserContext();
 
   const { isPrivateMode, togglePrivateMode } = usePrivacyContext();
@@ -43,7 +43,7 @@ export default function BrowserScreen() {
   const handleSearchPress = () => {
     // Navigate to search screen or implement search functionality
     console.log('Search pressed');
-    // Example: router.navigate('/search'); 
+    // Example: router.navigate('/search');
   };
 
   const handleBookmarksPress = () => {
@@ -76,21 +76,32 @@ export default function BrowserScreen() {
       style={[
         styles.container,
         { backgroundColor: dynamicStyles.container.base.backgroundColor },
-        isPrivateMode && { backgroundColor: dynamicStyles.privateMode.backgroundColor } // Apply dynamic private background
+        isPrivateMode && {
+          backgroundColor: dynamicStyles.privateMode.backgroundColor,
+        }, // Apply dynamic private background
       ]}
       edges={['left', 'right']}
     >
       {/* StatusBar is now handled in app/_layout.tsx */}
 
-      <View style={[
-        styles.browserContainer,
-        useSideBySideLayout && styles.landscapeContainer,
-        safeAreaStyles.safeAreaTop
-      ]}>
+      <View
+        style={[
+          styles.browserContainer,
+          useSideBySideLayout && styles.landscapeContainer,
+          safeAreaStyles.safeAreaTop,
+        ]}
+      >
         {useSideBySideLayout ? (
           // Side-by-side layout for tablets and desktops in landscape
           <>
-            <View style={[styles.sidebarContainer, { borderRightColor: dynamicStyles.button.secondary.borderColor }]}>
+            <View
+              style={[
+                styles.sidebarContainer,
+                {
+                  borderRightColor: dynamicStyles.button.secondary.borderColor,
+                },
+              ]}
+            >
               <ChromeBottomBar
                 refreshPage={refreshPage}
                 onSearchPress={handleSearchPress}
@@ -119,10 +130,7 @@ export default function BrowserScreen() {
                   onFocusSearch={handleAddressBarFocus}
                 />
               ) : (
-                <BrowserView
-                  url={currentUrl}
-                  tabId={currentTab}
-                />
+                <BrowserView url={currentUrl} tabId={currentTab} />
               )}
             </View>
           </>
@@ -146,10 +154,7 @@ export default function BrowserScreen() {
                 onFocusSearch={handleAddressBarFocus}
               />
             ) : (
-              <BrowserView
-                url={currentUrl}
-                tabId={currentTab}
-              />
+              <BrowserView url={currentUrl} tabId={currentTab} />
             )}
 
             <View style={safeAreaStyles.safeAreaBottom}>
@@ -179,7 +184,8 @@ export default function BrowserScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { // Base container style, backgroundColor will be applied dynamically
+  container: {
+    // Base container style, backgroundColor will be applied dynamically
     flex: 1,
   },
   // privateContainer style object removed from StyleSheet as it's now fully dynamic inline

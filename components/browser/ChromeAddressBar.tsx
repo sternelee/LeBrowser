@@ -1,5 +1,14 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, View, TextInput, TouchableOpacity, ActivityIndicator, Text, ViewStyle, TextStyle } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  TextInput,
+  TouchableOpacity,
+  ActivityIndicator,
+  Text,
+  ViewStyle,
+  TextStyle,
+} from 'react-native';
 import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed theme to staticTheme
 import { useTheme } from '@/context/ThemeContext'; // Import useTheme
 import { Search, Lock, X, Layers, MoreVertical } from 'lucide-react-native';
@@ -25,12 +34,18 @@ export function ChromeAddressBar({
   tabsCount,
   onMenuPress,
   onFocus,
-  onBlur
+  onBlur,
 }: ChromeAddressBarProps) {
   const [inputValue, setInputValue] = useState(url);
   const [isFocused, setIsFocused] = useState(false);
   const router = useRouter();
-  const { isTablet, isDesktop, getIconSize, getFontSize, getResponsivePadding } = useResponsiveSize();
+  const {
+    isTablet,
+    isDesktop,
+    getIconSize,
+    getFontSize,
+    getResponsivePadding,
+  } = useResponsiveSize();
   const { isDarkMode } = useTheme(); // Get theme status
   const dynamicStyles = commonStyles(isDarkMode); // Get dynamic styles
 
@@ -85,34 +100,64 @@ export function ChromeAddressBar({
     <View
       style={[
         styles.container,
-        { 
-          backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor,
-          borderBottomColor: isPrivateMode ? (isDarkMode ? staticTheme.colors.neutral[300] : staticTheme.colors.neutral[200]) : dynamicStyles.button.secondary.borderColor, // Adjust private border
+        {
+          backgroundColor: isPrivateMode
+            ? dynamicStyles.privateMode.backgroundColor
+            : dynamicStyles.container.base.backgroundColor,
+          borderBottomColor: isPrivateMode
+            ? isDarkMode
+              ? staticTheme.colors.neutral[300]
+              : staticTheme.colors.neutral[200]
+            : dynamicStyles.button.secondary.borderColor, // Adjust private border
         },
-        responsivePadding
+        responsivePadding,
       ]}
     >
       <View style={styles.addressBarContainer}>
-        <View style={[
-          styles.inputContainer,
-          { 
-            backgroundColor: isPrivateMode 
-              ? (isFocused ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.privateMode.backgroundColor) // Potentially different focused private bg
-              : (isFocused ? dynamicStyles.input.focused.backgroundColor : dynamicStyles.input.base.backgroundColor),
-            borderColor: isFocused ? dynamicStyles.input.focused.borderColor : dynamicStyles.input.base.borderColor,
-            borderWidth: isFocused ? 1 : (isPrivateMode ? 1 : dynamicStyles.input.base.borderWidth) // Ensure private mode has border
-          },
-          isTablet && styles.tabletInputContainer,
-          isDesktop && styles.desktopInputContainer
-        ]}>
+        <View
+          style={[
+            styles.inputContainer,
+            {
+              backgroundColor: isPrivateMode
+                ? isFocused
+                  ? dynamicStyles.privateMode.backgroundColor
+                  : dynamicStyles.privateMode.backgroundColor // Potentially different focused private bg
+                : isFocused
+                  ? dynamicStyles.input.focused.backgroundColor
+                  : dynamicStyles.input.base.backgroundColor,
+              borderColor: isFocused
+                ? dynamicStyles.input.focused.borderColor
+                : dynamicStyles.input.base.borderColor,
+              borderWidth: isFocused
+                ? 1
+                : isPrivateMode
+                  ? 1
+                  : dynamicStyles.input.base.borderWidth, // Ensure private mode has border
+            },
+            isTablet && styles.tabletInputContainer,
+            isDesktop && styles.desktopInputContainer,
+          ]}
+        >
           {isLoading ? (
-            <ActivityIndicator size="small" color={dynamicStyles.iconAccent.color} style={styles.icon} />
+            <ActivityIndicator
+              size="small"
+              color={dynamicStyles.iconAccent.color}
+              style={styles.icon}
+            />
           ) : (
             <>
               {isSecure ? (
-                <Lock size={iconSize} color={dynamicStyles.iconAccent.color} style={styles.icon} />
+                <Lock
+                  size={iconSize}
+                  color={dynamicStyles.iconAccent.color}
+                  style={styles.icon}
+                />
               ) : (
-                <Search size={iconSize} color={dynamicStyles.text.secondary.color} style={styles.icon} />
+                <Search
+                  size={iconSize}
+                  color={dynamicStyles.text.secondary.color}
+                  style={styles.icon}
+                />
               )}
             </>
           )}
@@ -120,8 +165,12 @@ export function ChromeAddressBar({
           <TextInput
             style={[
               styles.input,
-              { color: isPrivateMode ? dynamicStyles.text.primary.color : dynamicStyles.text.primary.color }, // Ensure private text is also themed
-              !isFocused && styles.centeredInput
+              {
+                color: isPrivateMode
+                  ? dynamicStyles.text.primary.color
+                  : dynamicStyles.text.primary.color,
+              }, // Ensure private text is also themed
+              !isFocused && styles.centeredInput,
             ]}
             value={isFocused ? inputValue : displayUrl}
             onChangeText={setInputValue}
@@ -153,13 +202,25 @@ export function ChromeAddressBar({
           style={[
             styles.tabButton,
             isTablet && styles.tabletButton,
-            isDesktop && styles.desktopButton
+            isDesktop && styles.desktopButton,
           ]}
           onPress={navigateToTabs}
         >
           <Layers size={menuIconSize} color={dynamicStyles.icon.color} />
-          <View style={[styles.tabCountBadge, { backgroundColor: staticTheme.colors.primary.main }]}>
-            <Text style={[styles.tabCountText, { color: staticTheme.colors.neutral[900] }]}>{tabsCount}</Text>
+          <View
+            style={[
+              styles.tabCountBadge,
+              { backgroundColor: staticTheme.colors.primary.main },
+            ]}
+          >
+            <Text
+              style={[
+                styles.tabCountText,
+                { color: staticTheme.colors.neutral[900] },
+              ]}
+            >
+              {tabsCount}
+            </Text>
           </View>
         </TouchableOpacity>
 
@@ -167,7 +228,7 @@ export function ChromeAddressBar({
           style={[
             styles.menuButton,
             isTablet && styles.tabletButton,
-            isDesktop && styles.desktopButton
+            isDesktop && styles.desktopButton,
           ]}
           onPress={onMenuPress}
         >
@@ -179,7 +240,8 @@ export function ChromeAddressBar({
 }
 
 const styles = StyleSheet.create({
-  container: { // Base styles, dynamic ones applied inline
+  container: {
+    // Base styles, dynamic ones applied inline
     borderBottomWidth: 1,
     paddingVertical: staticTheme.spacing.sm,
   } as ViewStyle,
@@ -189,7 +251,8 @@ const styles = StyleSheet.create({
     alignItems: 'center' as const,
     gap: staticTheme.spacing.sm,
   },
-  inputContainer: { // Base styles, dynamic ones applied inline
+  inputContainer: {
+    // Base styles, dynamic ones applied inline
     flex: 1,
     height: 48,
     borderRadius: staticTheme.radius.full,
@@ -211,7 +274,8 @@ const styles = StyleSheet.create({
   icon: {
     marginRight: staticTheme.spacing.sm,
   },
-  input: { // Base styles, dynamic color applied inline
+  input: {
+    // Base styles, dynamic color applied inline
     flex: 1,
     height: '100%',
     fontFamily: staticTheme.typography.families.sans,
@@ -242,7 +306,8 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
   } as ViewStyle,
-  tabCountBadge: { // Dynamic background and text color applied inline
+  tabCountBadge: {
+    // Dynamic background and text color applied inline
     position: 'absolute',
     top: staticTheme.spacing.xs,
     right: staticTheme.spacing.xs,
@@ -253,7 +318,8 @@ const styles = StyleSheet.create({
     alignItems: 'center' as const,
     paddingHorizontal: staticTheme.spacing.xs,
   } as ViewStyle,
-  tabCountText: { // Dynamic color applied inline
+  tabCountText: {
+    // Dynamic color applied inline
     fontSize: staticTheme.typography.sizes.xs,
     fontFamily: staticTheme.typography.families.sansBold,
   } as TextStyle,

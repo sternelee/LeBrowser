@@ -1,5 +1,14 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Modal, ScrollView, ViewStyle, TextStyle } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Modal,
+  ScrollView,
+  ViewStyle,
+  TextStyle,
+} from 'react-native';
 import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed theme, import commonStyles
 import { useTheme } from '@/context/ThemeContext'; // Import useTheme
 import {
@@ -12,7 +21,7 @@ import {
   Settings,
   History,
   Lock,
-  X
+  X,
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
@@ -32,7 +41,7 @@ export function ChromeMenu({
   onRefresh,
   onNewTab,
   isPrivateMode,
-  togglePrivateMode
+  togglePrivateMode,
 }: ChromeMenuProps) {
   const router = useRouter();
   const { isTablet, isDesktop, getIconSize, getFontSize } = useResponsiveSize();
@@ -72,10 +81,15 @@ export function ChromeMenu({
 
   // Updated icon colors based on theme and private mode
   const baseIconColor = dynamicStyles.icon.color;
-  const themedIconColor = isPrivateMode ? (isDarkMode ? staticTheme.dark.colors.textSecondary : staticTheme.light.colors.textSecondary) : baseIconColor;
+  const themedIconColor = isPrivateMode
+    ? isDarkMode
+      ? staticTheme.dark.colors.textSecondary
+      : staticTheme.light.colors.textSecondary
+    : baseIconColor;
   // For the incognito lock icon, use accent color when private mode is active, otherwise regular icon color
-  const incognitoIconColor = isPrivateMode ? dynamicStyles.iconAccent.color : themedIconColor;
-
+  const incognitoIconColor = isPrivateMode
+    ? dynamicStyles.iconAccent.color
+    : themedIconColor;
 
   const menuItems = [
     {
@@ -84,7 +98,7 @@ export function ChromeMenu({
       onPress: () => {
         onNewTab();
         onClose();
-      }
+      },
     },
     {
       icon: <Lock size={20} color={incognitoIconColor} />,
@@ -92,22 +106,22 @@ export function ChromeMenu({
       onPress: () => {
         togglePrivateMode();
         onClose();
-      }
+      },
     },
     {
       icon: <History size={20} color={themedIconColor} />,
       label: 'History',
-      onPress: navigateToHistory
+      onPress: navigateToHistory,
     },
     {
       icon: <Download size={20} color={themedIconColor} />,
       label: 'Downloads',
-      onPress: navigateToDownloads
+      onPress: navigateToDownloads,
     },
     {
       icon: <Bookmark size={20} color={themedIconColor} />,
       label: 'Bookmarks',
-      onPress: navigateToBookmarks
+      onPress: navigateToBookmarks,
     },
     {
       icon: <RefreshCw size={20} color={themedIconColor} />,
@@ -115,18 +129,18 @@ export function ChromeMenu({
       onPress: () => {
         onRefresh();
         onClose();
-      }
+      },
     },
     {
       icon: <Settings size={20} color={themedIconColor} />,
       label: 'Settings',
-      onPress: navigateToPrivacy
+      onPress: navigateToPrivacy,
     },
     {
       icon: <Info size={20} color={themedIconColor} />,
       label: 'Help and feedback',
-      onPress: navigateToHelp
-    }
+      onPress: navigateToHelp,
+    },
   ];
 
   // Get responsive values
@@ -145,15 +159,23 @@ export function ChromeMenu({
       onRequestClose={onClose}
     >
       <View style={styles.overlay}>
-        <View style={[
-          styles.menuContainer,
-          { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.input.base.backgroundColor }, // Use themed surface
-          { width: menuWidth }
-        ]}>
+        <View
+          style={[
+            styles.menuContainer,
+            {
+              backgroundColor: isPrivateMode
+                ? dynamicStyles.privateMode.backgroundColor
+                : dynamicStyles.input.base.backgroundColor,
+            }, // Use themed surface
+            { width: menuWidth },
+          ]}
+        >
           <ScrollView style={styles.menuItems}>
             {menuItems.map((item, index) => {
               // Replace the icon with a responsive version
-              const responsiveIcon = React.cloneElement(item.icon, { size: iconSize });
+              const responsiveIcon = React.cloneElement(item.icon, {
+                size: iconSize,
+              });
 
               return (
                 <TouchableOpacity
@@ -161,22 +183,32 @@ export function ChromeMenu({
                   style={[
                     styles.menuItem,
                     isTablet && styles.tabletMenuItem,
-                    isDesktop && styles.desktopMenuItem
+                    isDesktop && styles.desktopMenuItem,
                   ]}
                   onPress={item.onPress}
                 >
-                  <View style={[
-                    styles.menuItemIcon,
-                    isTablet && styles.tabletMenuItemIcon,
-                    isDesktop && styles.desktopMenuItemIcon
-                  ]}>
+                  <View
+                    style={[
+                      styles.menuItemIcon,
+                      isTablet && styles.tabletMenuItemIcon,
+                      isDesktop && styles.desktopMenuItemIcon,
+                    ]}
+                  >
                     {responsiveIcon}
                   </View>
-                  <Text style={[
-                    styles.menuItemText,
-                    { color: isPrivateMode ? (isDarkMode ? staticTheme.dark.colors.textSecondary : staticTheme.light.colors.textSecondary) : dynamicStyles.text.primary.color },
-                    { fontSize }
-                  ]}>
+                  <Text
+                    style={[
+                      styles.menuItemText,
+                      {
+                        color: isPrivateMode
+                          ? isDarkMode
+                            ? staticTheme.dark.colors.textSecondary
+                            : staticTheme.light.colors.textSecondary
+                          : dynamicStyles.text.primary.color,
+                      },
+                      { fontSize },
+                    ]}
+                  >
                     {item.label}
                   </Text>
                 </TouchableOpacity>
@@ -195,9 +227,10 @@ export function ChromeMenu({
 }
 
 const styles = StyleSheet.create({
-  overlay: { // Keeping dark overlay for now, can be themed if needed
+  overlay: {
+    // Keeping dark overlay for now, can be themed if needed
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)', 
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     flexDirection: 'column',
   } as ViewStyle,
   closeOverlay: {
@@ -208,13 +241,14 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: -1,
   },
-  menuContainer: { // Base styles, dynamic background applied inline
+  menuContainer: {
+    // Base styles, dynamic background applied inline
     width: '100%', // width is dynamic
     paddingTop: staticTheme.spacing.sm,
     paddingBottom: staticTheme.spacing.xl,
     borderBottomLeftRadius: staticTheme.radius.md,
     borderBottomRightRadius: staticTheme.radius.md,
-    ...staticTheme.shadows.lg, 
+    ...staticTheme.shadows.lg,
   } as ViewStyle,
   // privateMenuContainer removed, handled inline
   // privateText removed, handled inline

@@ -1,4 +1,11 @@
-import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  ReactNode,
+} from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
@@ -58,10 +65,13 @@ const PrivacyContext = createContext<PrivacyContextType | undefined>(undefined);
 export function PrivacyProvider({ children }: { children: ReactNode }) {
   const [isPrivateMode, setIsPrivateMode] = useState<boolean>(false);
   const [adBlockingEnabled, setAdBlockingEnabled] = useState<boolean>(true);
-  const [cookieControlEnabled, setCookieControlEnabled] = useState<boolean>(true);
-  const [fingerprintProtectionEnabled, setFingerprintProtectionEnabled] = useState<boolean>(true);
+  const [cookieControlEnabled, setCookieControlEnabled] =
+    useState<boolean>(true);
+  const [fingerprintProtectionEnabled, setFingerprintProtectionEnabled] =
+    useState<boolean>(true);
   const [httpsOnlyEnabled, setHttpsOnlyEnabled] = useState<boolean>(true);
-  const [scriptBlockingEnabled, setScriptBlockingEnabled] = useState<boolean>(false);
+  const [scriptBlockingEnabled, setScriptBlockingEnabled] =
+    useState<boolean>(false);
 
   // Load privacy settings from storage
   useEffect(() => {
@@ -72,7 +82,9 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
           const settings = JSON.parse(storedSettings);
           setAdBlockingEnabled(settings.adBlockingEnabled ?? true);
           setCookieControlEnabled(settings.cookieControlEnabled ?? true);
-          setFingerprintProtectionEnabled(settings.fingerprintProtectionEnabled ?? true);
+          setFingerprintProtectionEnabled(
+            settings.fingerprintProtectionEnabled ?? true,
+          );
           setHttpsOnlyEnabled(settings.httpsOnlyEnabled ?? true);
           setScriptBlockingEnabled(settings.scriptBlockingEnabled ?? false);
         }
@@ -80,7 +92,7 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
         console.error('Failed to load privacy settings:', error);
       }
     };
-    
+
     loadSettings();
   }, []);
 
@@ -93,49 +105,49 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
           cookieControlEnabled,
           fingerprintProtectionEnabled,
           httpsOnlyEnabled,
-          scriptBlockingEnabled
+          scriptBlockingEnabled,
         };
         await store.setItem('privacySettings', JSON.stringify(settings));
       } catch (error) {
         console.error('Failed to save privacy settings:', error);
       }
     };
-    
+
     saveSettings();
   }, [
     adBlockingEnabled,
     cookieControlEnabled,
     fingerprintProtectionEnabled,
     httpsOnlyEnabled,
-    scriptBlockingEnabled
+    scriptBlockingEnabled,
   ]);
 
   const togglePrivateMode = useCallback(() => {
-    setIsPrivateMode(prev => !prev);
+    setIsPrivateMode((prev) => !prev);
   }, []);
 
   const toggleAdBlocking = useCallback(() => {
-    setAdBlockingEnabled(prev => !prev);
+    setAdBlockingEnabled((prev) => !prev);
   }, []);
 
   const toggleCookieControl = useCallback(() => {
-    setCookieControlEnabled(prev => !prev);
+    setCookieControlEnabled((prev) => !prev);
   }, []);
 
   const toggleFingerprintProtection = useCallback(() => {
-    setFingerprintProtectionEnabled(prev => !prev);
+    setFingerprintProtectionEnabled((prev) => !prev);
   }, []);
 
   const toggleHttpsOnly = useCallback(() => {
-    setHttpsOnlyEnabled(prev => !prev);
+    setHttpsOnlyEnabled((prev) => !prev);
   }, []);
 
   const toggleScriptBlocking = useCallback(() => {
-    setScriptBlockingEnabled(prev => !prev);
+    setScriptBlockingEnabled((prev) => !prev);
   }, []);
 
   const clearBrowsingData = useCallback(async () => {
-    // Clear local storage (for web) 
+    // Clear local storage (for web)
     if (Platform.OS === 'web') {
       try {
         // Keep only privacy settings
@@ -144,12 +156,12 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
         if (settings) {
           localStorage.setItem('privacySettings', settings);
         }
-        
+
         // Clear session storage
         sessionStorage.clear();
-        
+
         // Clear cookies
-        document.cookie.split(';').forEach(cookie => {
+        document.cookie.split(';').forEach((cookie) => {
           document.cookie = cookie
             .replace(/^ +/, '')
             .replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
@@ -158,7 +170,7 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
         console.error('Error clearing browsing data:', error);
       }
     }
-    
+
     // For native platforms, WebView handles this internally via the incognito mode
   }, []);
 
@@ -175,13 +187,11 @@ export function PrivacyProvider({ children }: { children: ReactNode }) {
     toggleFingerprintProtection,
     toggleHttpsOnly,
     toggleScriptBlocking,
-    clearBrowsingData
+    clearBrowsingData,
   };
 
   return (
-    <PrivacyContext.Provider value={value}>
-      {children}
-    </PrivacyContext.Provider>
+    <PrivacyContext.Provider value={value}>{children}</PrivacyContext.Provider>
   );
 }
 

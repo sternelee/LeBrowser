@@ -1,5 +1,11 @@
 import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
-import { ChevronLeft, ChevronRight, RotateCw, Layers, Chrome as Home } from 'lucide-react-native';
+import {
+  ChevronLeft,
+  ChevronRight,
+  RotateCw,
+  Layers,
+  Chrome as Home,
+} from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 
 interface WebControlsProps {
@@ -11,41 +17,44 @@ interface WebControlsProps {
   isPrivateMode: boolean;
 }
 
-export function WebControls({ 
-  canGoBack, 
-  canGoForward, 
-  goBack, 
-  goForward, 
+export function WebControls({
+  canGoBack,
+  canGoForward,
+  goBack,
+  goForward,
   refresh,
-  isPrivateMode
+  isPrivateMode,
 }: WebControlsProps) {
   const router = useRouter();
-  
+
   const navigateToTabs = () => {
     router.navigate('/tabs');
   };
-  
+
   const navigateHome = () => {
     router.navigate('/');
   };
-  
+
   return (
     <View style={[styles.container, isPrivateMode && styles.privateContainer]}>
       <View style={styles.controlsGroup}>
-        <TouchableOpacity 
-          style={[styles.button, !canGoBack && styles.disabledButton]} 
+        <TouchableOpacity
+          style={[styles.button, !canGoBack && styles.disabledButton]}
           onPress={goBack}
           disabled={!canGoBack}
         >
           <ChevronLeft size={24} color={canGoBack ? '#FFFFFF' : '#535353'} />
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.button, !canGoForward && styles.disabledButton]} 
+
+        <TouchableOpacity
+          style={[styles.button, !canGoForward && styles.disabledButton]}
           onPress={goForward}
           disabled={!canGoForward}
         >
-          <ChevronRight size={24} color={canGoForward ? '#FFFFFF' : '#535353'} />
+          <ChevronRight
+            size={24}
+            color={canGoForward ? '#FFFFFF' : '#535353'}
+          />
         </TouchableOpacity>
       </View>
 
@@ -53,11 +62,11 @@ export function WebControls({
         <TouchableOpacity style={styles.button} onPress={refresh}>
           <RotateCw size={22} color="#FFFFFF" />
         </TouchableOpacity>
-        
+
         <TouchableOpacity style={styles.button} onPress={navigateHome}>
           <Home size={22} color="#FFFFFF" />
         </TouchableOpacity>
-        
+
         <TouchableOpacity style={styles.button} onPress={navigateToTabs}>
           <Layers size={22} color="#FFFFFF" />
         </TouchableOpacity>
@@ -108,3 +117,4 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
 });
+

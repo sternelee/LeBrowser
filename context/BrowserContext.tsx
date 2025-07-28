@@ -1,4 +1,11 @@
-import { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  ReactNode,
+} from 'react';
 import { useRouter } from 'expo-router';
 import { generateUUID } from '@/utils/helpers';
 import { usePrivacyContext } from './PrivacyContext';
@@ -123,9 +130,11 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
   const [tabs, setTabs] = useState<string[]>(['initial']);
   const [currentTab, setCurrentTab] = useState<string>('initial');
   const [tabsInfo, setTabsInfo] = useState<{ [key: string]: TabInfo }>({
-    initial: { url: 'https://www.google.com', title: 'New Tab' }
+    initial: { url: 'https://www.google.com', title: 'New Tab' },
   });
-  const [currentUrl, setCurrentUrl] = useState<string>('https://www.google.com');
+  const [currentUrl, setCurrentUrl] = useState<string>(
+    'https://www.google.com',
+  );
   const [canGoBack, setCanGoBack] = useState<boolean>(false);
   const [canGoForward, setCanGoForward] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -136,29 +145,29 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
       url: 'https://www.google.com',
       title: 'Google',
       timestamp: Date.now() - 1000 * 60 * 5, // 5 minutes ago
-      favicon: 'https://www.google.com/favicon.ico'
+      favicon: 'https://www.google.com/favicon.ico',
     },
     {
       id: '2',
       url: 'https://github.com',
-      title: 'GitHub: Let\'s build from here',
+      title: "GitHub: Let's build from here",
       timestamp: Date.now() - 1000 * 60 * 30, // 30 minutes ago
-      favicon: 'https://github.githubassets.com/favicons/favicon.svg'
+      favicon: 'https://github.githubassets.com/favicons/favicon.svg',
     },
     {
       id: '3',
       url: 'https://www.youtube.com',
       title: 'YouTube',
       timestamp: Date.now() - 1000 * 60 * 60, // 1 hour ago
-      favicon: 'https://www.youtube.com/favicon.ico'
+      favicon: 'https://www.youtube.com/favicon.ico',
     },
     {
       id: '4',
       url: 'https://www.wikipedia.org',
       title: 'Wikipedia',
       timestamp: Date.now() - 1000 * 60 * 60 * 2, // 2 hours ago
-      favicon: 'https://www.wikipedia.org/static/favicon/wikipedia.ico'
-    }
+      favicon: 'https://www.wikipedia.org/static/favicon/wikipedia.ico',
+    },
   ]);
 
   const [downloads, setDownloads] = useState<DownloadItem[]>([
@@ -169,7 +178,7 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
       size: '2.4 MB',
       status: 'completed',
       timestamp: Date.now() - 1000 * 60 * 10, // 10 minutes ago
-      fileType: 'document'
+      fileType: 'document',
     },
     {
       id: '2',
@@ -178,7 +187,7 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
       size: '1.2 MB',
       status: 'completed',
       timestamp: Date.now() - 1000 * 60 * 30, // 30 minutes ago
-      fileType: 'image'
+      fileType: 'image',
     },
     {
       id: '3',
@@ -188,7 +197,7 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
       status: 'in_progress',
       progress: 45,
       timestamp: Date.now() - 1000 * 60 * 5, // 5 minutes ago
-      fileType: 'document'
+      fileType: 'document',
     },
     {
       id: '4',
@@ -197,18 +206,42 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
       size: '10.1 MB',
       status: 'failed',
       timestamp: Date.now() - 1000 * 60 * 15, // 15 minutes ago
-      fileType: 'archive'
-    }
+      fileType: 'archive',
+    },
   ]);
   const [shortcuts, setShortcuts] = useState<Shortcut[]>([
-    { title: 'BRAC Univ...', url: 'https://www.bracu.ac.bd', favicon: 'https://www.bracu.ac.bd/sites/default/files/favicon.ico' },
-    { title: 'GitHub', url: 'https://github.com', favicon: 'https://github.githubassets.com/favicons/favicon.svg' },
+    {
+      title: 'BRAC Univ...',
+      url: 'https://www.bracu.ac.bd',
+      favicon: 'https://www.bracu.ac.bd/sites/default/files/favicon.ico',
+    },
+    {
+      title: 'GitHub',
+      url: 'https://github.com',
+      favicon: 'https://github.githubassets.com/favicons/favicon.svg',
+    },
     { title: 'Grok', url: 'https://grok.x.ai', favicon: '' },
-    { title: 'BRAC Univ...', url: 'https://www.bracu.ac.bd/academics', favicon: 'https://www.bracu.ac.bd/sites/default/files/favicon.ico' },
+    {
+      title: 'BRAC Univ...',
+      url: 'https://www.bracu.ac.bd/academics',
+      favicon: 'https://www.bracu.ac.bd/sites/default/files/favicon.ico',
+    },
     { title: 'PreProd', url: 'https://preprod.example.com', favicon: '' },
-    { title: 'Google', url: 'https://www.google.com', favicon: 'https://www.google.com/favicon.ico' },
-    { title: 'YouTube', url: 'https://www.youtube.com', favicon: 'https://www.youtube.com/favicon.ico' },
-    { title: 'Twitter', url: 'https://twitter.com', favicon: 'https://twitter.com/favicon.ico' },
+    {
+      title: 'Google',
+      url: 'https://www.google.com',
+      favicon: 'https://www.google.com/favicon.ico',
+    },
+    {
+      title: 'YouTube',
+      url: 'https://www.youtube.com',
+      favicon: 'https://www.youtube.com/favicon.ico',
+    },
+    {
+      title: 'Twitter',
+      url: 'https://twitter.com',
+      favicon: 'https://twitter.com/favicon.ico',
+    },
   ]);
 
   const router = useRouter();
@@ -314,72 +347,81 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
 
   const addNewTab = useCallback(() => {
     const newTabId = generateUUID();
-    setTabs(prevTabs => [...prevTabs, newTabId]);
+    setTabs((prevTabs) => [...prevTabs, newTabId]);
     setCurrentTab(newTabId);
-    setTabsInfo(prev => ({
+    setTabsInfo((prev) => ({
       ...prev,
-      [newTabId]: { url: 'https://www.google.com', title: 'New Tab' }
+      [newTabId]: { url: 'https://www.google.com', title: 'New Tab' },
     }));
     setCurrentUrl('https://www.google.com');
     router.push('/');
   }, [router]);
 
-  const removeTab = useCallback((tabId: string) => {
-    // Prevent removing the last tab
-    if (tabs.length <= 1) {
-      return;
-    }
-
-    setTabs(prevTabs => {
-      const newTabs = prevTabs.filter(id => id !== tabId);
-
-      // If the current tab is being removed, switch to another tab
-      if (tabId === currentTab) {
-        const currentIndex = prevTabs.indexOf(tabId);
-        const newIndex = currentIndex > 0 ? currentIndex - 1 : 0;
-        const newCurrentTab = newTabs[newIndex];
-        setCurrentTab(newCurrentTab);
-
-        // Update current URL to match the new tab
-        if (tabsInfo[newCurrentTab]) {
-          setCurrentUrl(tabsInfo[newCurrentTab].url);
-        }
+  const removeTab = useCallback(
+    (tabId: string) => {
+      // Prevent removing the last tab
+      if (tabs.length <= 1) {
+        return;
       }
 
-      return newTabs;
-    });
+      setTabs((prevTabs) => {
+        const newTabs = prevTabs.filter((id) => id !== tabId);
 
-    // Remove tab info for the removed tab
-    setTabsInfo(prev => {
-      const newTabsInfo = { ...prev };
-      delete newTabsInfo[tabId];
-      return newTabsInfo;
-    });
-  }, [tabs, currentTab, tabsInfo]);
+        // If the current tab is being removed, switch to another tab
+        if (tabId === currentTab) {
+          const currentIndex = prevTabs.indexOf(tabId);
+          const newIndex = currentIndex > 0 ? currentIndex - 1 : 0;
+          const newCurrentTab = newTabs[newIndex];
+          setCurrentTab(newCurrentTab);
 
-  const switchToTab = useCallback((tabId: string) => {
-    setCurrentTab(tabId);
-    if (tabsInfo[tabId]) {
-      setCurrentUrl(tabsInfo[tabId].url);
-    }
-    // Navigate back to the browser screen
-    router.push('/');
-  }, [tabsInfo, router]);
+          // Update current URL to match the new tab
+          if (tabsInfo[newCurrentTab]) {
+            setCurrentUrl(tabsInfo[newCurrentTab].url);
+          }
+        }
+
+        return newTabs;
+      });
+
+      // Remove tab info for the removed tab
+      setTabsInfo((prev) => {
+        const newTabsInfo = { ...prev };
+        delete newTabsInfo[tabId];
+        return newTabsInfo;
+      });
+    },
+    [tabs, currentTab, tabsInfo],
+  );
+
+  const switchToTab = useCallback(
+    (tabId: string) => {
+      setCurrentTab(tabId);
+      if (tabsInfo[tabId]) {
+        setCurrentUrl(tabsInfo[tabId].url);
+      }
+      // Navigate back to the browser screen
+      router.push('/');
+    },
+    [tabsInfo, router],
+  );
 
   const updateTabInfo = useCallback((tabId: string, info: Partial<TabInfo>) => {
-    setTabsInfo(prev => {
+    setTabsInfo((prev) => {
       const tabInfo = prev[tabId] || { url: '', title: 'New Tab' };
       return {
         ...prev,
-        [tabId]: { ...tabInfo, ...info }
+        [tabId]: { ...tabInfo, ...info },
       };
     });
   }, []);
 
-  const updateUrl = useCallback((url: string) => {
-    setCurrentUrl(url);
-    updateTabInfo(currentTab, { url });
-  }, [currentTab, updateTabInfo]);
+  const updateUrl = useCallback(
+    (url: string) => {
+      setCurrentUrl(url);
+      updateTabInfo(currentTab, { url });
+    },
+    [currentTab, updateTabInfo],
+  );
 
   const goBack = useCallback(() => {
     // WebView will handle the actual back navigation
@@ -397,9 +439,9 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
   }, [currentUrl, updateUrl]);
 
   const addBookmark = useCallback((bookmark: Bookmark) => {
-    setBookmarks(prev => {
+    setBookmarks((prev) => {
       // Check if bookmark already exists
-      const exists = prev.some(b => b.url === bookmark.url);
+      const exists = prev.some((b) => b.url === bookmark.url);
       if (exists) {
         return prev;
       }
@@ -408,7 +450,7 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const removeBookmark = useCallback((url: string) => {
-    setBookmarks(prev => prev.filter(b => b.url !== url));
+    setBookmarks((prev) => prev.filter((b) => b.url !== url));
   }, []);
 
   const loadInitialUrl = useCallback(() => {
@@ -417,46 +459,55 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
     }
   }, [currentTab, tabsInfo]);
 
-  const navigateToUrl = useCallback((url: string) => {
-    setCurrentUrl(url);
-    updateTabInfo(currentTab, { url });
-    router.push('/');
-  }, [currentTab, updateTabInfo, router]);
+  const navigateToUrl = useCallback(
+    (url: string) => {
+      setCurrentUrl(url);
+      updateTabInfo(currentTab, { url });
+      router.push('/');
+    },
+    [currentTab, updateTabInfo, router],
+  );
 
   // History management functions
-  const addHistoryItem = useCallback((item: Omit<HistoryItem, 'id'>) => {
-    if (isPrivateMode) {
-      // Don't add history in private mode
-      return;
-    }
-
-    setHistory(prev => {
-      // Check if URL already exists in history
-      const existingIndex = prev.findIndex(h => h.url === item.url);
-
-      if (existingIndex !== -1) {
-        // Update existing entry with new timestamp
-        const newHistory = [...prev];
-        newHistory[existingIndex] = {
-          ...newHistory[existingIndex],
-          title: item.title || newHistory[existingIndex].title,
-          timestamp: Date.now(),
-          favicon: item.favicon || newHistory[existingIndex].favicon
-        };
-        return newHistory;
-      } else {
-        // Add new entry
-        return [{
-          id: generateUUID(),
-          ...item,
-          timestamp: Date.now()
-        }, ...prev];
+  const addHistoryItem = useCallback(
+    (item: Omit<HistoryItem, 'id'>) => {
+      if (isPrivateMode) {
+        // Don't add history in private mode
+        return;
       }
-    });
-  }, [isPrivateMode]);
+
+      setHistory((prev) => {
+        // Check if URL already exists in history
+        const existingIndex = prev.findIndex((h) => h.url === item.url);
+
+        if (existingIndex !== -1) {
+          // Update existing entry with new timestamp
+          const newHistory = [...prev];
+          newHistory[existingIndex] = {
+            ...newHistory[existingIndex],
+            title: item.title || newHistory[existingIndex].title,
+            timestamp: Date.now(),
+            favicon: item.favicon || newHistory[existingIndex].favicon,
+          };
+          return newHistory;
+        } else {
+          // Add new entry
+          return [
+            {
+              id: generateUUID(),
+              ...item,
+              timestamp: Date.now(),
+            },
+            ...prev,
+          ];
+        }
+      });
+    },
+    [isPrivateMode],
+  );
 
   const removeHistoryItem = useCallback((id: string) => {
-    setHistory(prev => prev.filter(item => item.id !== id));
+    setHistory((prev) => prev.filter((item) => item.id !== id));
   }, []);
 
   const clearHistory = useCallback(() => {
@@ -465,33 +516,33 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
 
   // Download management functions
   const addDownloadItem = useCallback((item: Omit<DownloadItem, 'id'>) => {
-    setDownloads(prev => [
+    setDownloads((prev) => [
       {
         id: generateUUID(),
         ...item,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       },
-      ...prev
+      ...prev,
     ]);
   }, []);
 
   const updateDownloadProgress = useCallback((id: string, progress: number) => {
-    setDownloads(prev => {
-      const index = prev.findIndex(item => item.id === id);
+    setDownloads((prev) => {
+      const index = prev.findIndex((item) => item.id === id);
       if (index === -1) return prev;
 
       const newDownloads = [...prev];
       newDownloads[index] = {
         ...newDownloads[index],
         progress,
-        status: progress >= 100 ? 'completed' : 'in_progress'
+        status: progress >= 100 ? 'completed' : 'in_progress',
       };
       return newDownloads;
     });
   }, []);
 
   const removeDownloadItem = useCallback((id: string) => {
-    setDownloads(prev => prev.filter(item => item.id !== id));
+    setDownloads((prev) => prev.filter((item) => item.id !== id));
   }, []);
 
   const clearDownloads = useCallback(() => {
@@ -509,7 +560,7 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
     downloads,
     navigation: {
       canGoBack,
-      canGoForward
+      canGoForward,
     },
     isLoading,
     addNewTab,
@@ -534,13 +585,11 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
     removeDownloadItem,
     clearDownloads,
     loadInitialUrl,
-    navigateToUrl
+    navigateToUrl,
   };
 
   return (
-    <BrowserContext.Provider value={value}>
-      {children}
-    </BrowserContext.Provider>
+    <BrowserContext.Provider value={value}>{children}</BrowserContext.Provider>
   );
 }
 

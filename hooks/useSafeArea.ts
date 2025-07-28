@@ -3,13 +3,13 @@ import { Platform, StyleSheet } from 'react-native';
 
 /**
  * A hook that provides safe area insets and styles for proper device edge handling
- * 
+ *
  * @returns Object with insets and utility styles
  */
 export function useSafeArea() {
   // Get safe area insets from react-native-safe-area-context
   const insets = useSafeAreaInsets();
-  
+
   // Create styles for safe area padding
   const styles = StyleSheet.create({
     // Safe area padding for the entire screen
@@ -56,23 +56,31 @@ export function useSafeArea() {
       marginBottom: insets.bottom,
     },
   });
-  
+
   return {
     insets,
     styles,
     // Helper function to get dynamic safe area styles
-    getSafeAreaStyle: (options: { 
-      top?: boolean; 
-      bottom?: boolean; 
-      horizontal?: boolean;
-      addTop?: number;
-      addBottom?: number;
-    } = {}) => {
-      const { top = true, bottom = true, horizontal = true, addTop = 0, addBottom = 0 } = options;
-      
+    getSafeAreaStyle: (
+      options: {
+        top?: boolean;
+        bottom?: boolean;
+        horizontal?: boolean;
+        addTop?: number;
+        addBottom?: number;
+      } = {},
+    ) => {
+      const {
+        top = true,
+        bottom = true,
+        horizontal = true,
+        addTop = 0,
+        addBottom = 0,
+      } = options;
+
       return {
-        paddingTop: top ? (insets.top + addTop) : addTop,
-        paddingBottom: bottom ? (insets.bottom + addBottom) : addBottom,
+        paddingTop: top ? insets.top + addTop : addTop,
+        paddingBottom: bottom ? insets.bottom + addBottom : addBottom,
         paddingLeft: horizontal ? insets.left : 0,
         paddingRight: horizontal ? insets.right : 0,
       };

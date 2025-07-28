@@ -8,7 +8,7 @@ export const theme = {
     },
     // Neutral Colors - Dark Theme (Black base)
     neutral: {
-      50: '#000000',  // Pure black background
+      50: '#000000', // Pure black background
       100: '#111111', // Off-black
       200: '#222222', // Borders, dividers
       300: '#333333', // Disabled states
@@ -96,10 +96,10 @@ export const theme = {
   light: {
     colors: {
       background: '#ffffff', // Pure white background
-      surface: '#f8fafc',   // Slightly off-white for surfaces like cards
-      text: '#000000',      // Pure black text
+      surface: '#f8fafc', // Slightly off-white for surfaces like cards
+      text: '#000000', // Pure black text
       textSecondary: '#555555', // Dark gray for secondary text
-      border: '#e2e8f0',    // Light gray for borders
+      border: '#e2e8f0', // Light gray for borders
       primaryAccent: '#60a5fa', // Light blue for accents
       privateBackground: '#f0f0f0', // Very light gray for private mode in light theme
     },
@@ -109,19 +109,21 @@ export const theme = {
   dark: {
     colors: {
       background: '#000000', // Pure black background
-      surface: '#111111',   // Off-black for surfaces
-      text: '#ffffff',      // Pure white text
+      surface: '#111111', // Off-black for surfaces
+      text: '#ffffff', // Pure white text
       textSecondary: '#bbbbbb', // Light gray for secondary text
-      border: '#333333',    // Dark gray for borders
+      border: '#333333', // Dark gray for borders
       primaryAccent: '#60a5fa', // Light blue for accents
       privateBackground: '#0a0a0a', // Very dark gray (near black) for private mode in dark theme
     },
   },
 } as const;
 
-  // Common styles that can be reused across components
+// Common styles that can be reused across components
 export const commonStyles = (isDarkMode: boolean) => {
-  const currentThemeColors = isDarkMode ? theme.dark.colors : theme.light.colors;
+  const currentThemeColors = isDarkMode
+    ? theme.dark.colors
+    : theme.light.colors;
   const baseNeutralColors = theme.colors.neutral; // For dark mode specific neutral shades if needed
   const primaryColors = theme.colors.primary;
 
@@ -154,7 +156,9 @@ export const commonStyles = (isDarkMode: boolean) => {
         borderWidth: 1,
       },
       focused: {
-        backgroundColor: isDarkMode ? baseNeutralColors[200] : theme.light.colors.surface, // Darker for dark, same for light
+        backgroundColor: isDarkMode
+          ? baseNeutralColors[200]
+          : theme.light.colors.surface, // Darker for dark, same for light
         borderColor: primaryColors.light, // Accent color for focus
         ...theme.shadows.sm, // Subtle shadow on focus
       },
@@ -183,10 +187,11 @@ export const commonStyles = (isDarkMode: boolean) => {
         // Text color for secondary button
         color: currentThemeColors.text,
       },
-      accent: { // For buttons that need the light blue accent
+      accent: {
+        // For buttons that need the light blue accent
         backgroundColor: currentThemeColors.primaryAccent,
         color: isDarkMode ? theme.dark.colors.text : theme.light.colors.text, // Ensure contrast
-      }
+      },
     },
     // Text styles
     text: {
@@ -207,7 +212,7 @@ export const commonStyles = (isDarkMode: boolean) => {
       },
       accent: {
         color: currentThemeColors.primaryAccent,
-      }
+      },
     },
     // Icon styles
     icon: {
@@ -215,6 +220,6 @@ export const commonStyles = (isDarkMode: boolean) => {
     },
     iconAccent: {
       color: currentThemeColors.primaryAccent, // Light blue icon color
-    }
+    },
   };
 };

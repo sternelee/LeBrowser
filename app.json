@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "bolt-expo-nativewind",
-    "slug": "bolt-expo-nativewind",
+    "name": "WeBrowser",
+    "slug": "we-browser",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
+    "scheme": "we-browser",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

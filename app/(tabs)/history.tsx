@@ -1,5 +1,15 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, TextInput, Alert, ViewStyle, TextStyle } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  TextInput,
+  Alert,
+  ViewStyle,
+  TextStyle,
+} from 'react-native';
 import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed theme, import commonStyles
 import { useTheme } from '@/context/ThemeContext'; // Import useTheme
 import { useRouter } from 'expo-router';
@@ -19,10 +29,17 @@ interface HistoryItem {
 }
 
 export default function HistoryScreen() {
-  const { history, clearHistory, removeHistoryItem, navigateToUrl } = useBrowserContext();
+  const { history, clearHistory, removeHistoryItem, navigateToUrl } =
+    useBrowserContext();
   const { isPrivateMode } = usePrivacyContext();
   const router = useRouter();
-  const { isTablet, isDesktop, getIconSize, getFontSize, getResponsivePadding } = useResponsiveSize();
+  const {
+    isTablet,
+    isDesktop,
+    getIconSize,
+    getFontSize,
+    getResponsivePadding,
+  } = useResponsiveSize();
   const { styles: safeAreaStyles } = useSafeArea();
   const { isDarkMode } = useTheme();
   const dynamicStyles = commonStyles(isDarkMode);
@@ -36,10 +53,10 @@ export default function HistoryScreen() {
       const query = searchQuery.toLowerCase();
       setFilteredHistory(
         history.filter(
-          item => 
-            item.title.toLowerCase().includes(query) || 
-            item.url.toLowerCase().includes(query)
-        )
+          (item) =>
+            item.title.toLowerCase().includes(query) ||
+            item.url.toLowerCase().includes(query),
+        ),
       );
     }
   }, [searchQuery, history]);
@@ -55,14 +72,14 @@ export default function HistoryScreen() {
       [
         {
           text: 'Cancel',
-          style: 'cancel'
+          style: 'cancel',
         },
         {
           text: 'Clear',
           onPress: clearHistory,
-          style: 'destructive'
-        }
-      ]
+          style: 'destructive',
+        },
+      ],
     );
   };
 
@@ -76,33 +93,40 @@ export default function HistoryScreen() {
 
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp);
-    return date.toLocaleDateString(undefined, { 
-      weekday: 'short', 
-      month: 'short', 
+    return date.toLocaleDateString(undefined, {
+      weekday: 'short',
+      month: 'short',
       day: 'numeric',
-      year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+      year:
+        date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined,
     });
   };
 
   const formatTime = (timestamp: number) => {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleTimeString(undefined, {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   };
 
   // Group history items by date
-  const groupedHistory = filteredHistory.reduce((groups, item) => {
-    const date = formatDate(item.timestamp);
-    if (!groups[date]) {
-      groups[date] = [];
-    }
-    groups[date].push(item);
-    return groups;
-  }, {} as Record<string, HistoryItem[]>);
+  const groupedHistory = filteredHistory.reduce(
+    (groups, item) => {
+      const date = formatDate(item.timestamp);
+      if (!groups[date]) {
+        groups[date] = [];
+      }
+      groups[date].push(item);
+      return groups;
+    },
+    {} as Record<string, HistoryItem[]>,
+  );
 
   // Convert grouped history to array for FlatList
-  const sections = Object.keys(groupedHistory).map(date => ({
+  const sections = Object.keys(groupedHistory).map((date) => ({
     date,
-    data: groupedHistory[date]
+    data: groupedHistory[date],
   }));
 
   // Get responsive values
@@ -111,28 +135,38 @@ export default function HistoryScreen() {
   const responsivePadding = getResponsivePadding();
 
   return (
-    <SafeAreaView style={[
-      styles.container,
-      { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor }
-    ]}>
-      <View style={[
-        styles.header,
-        { borderBottomColor: dynamicStyles.button.secondary.borderColor }, // Add border
-        responsivePadding,
-        safeAreaStyles.safeAreaTop
-      ]}>
+    <SafeAreaView
+      style={[
+        styles.container,
+        {
+          backgroundColor: isPrivateMode
+            ? dynamicStyles.privateMode.backgroundColor
+            : dynamicStyles.container.base.backgroundColor,
+        },
+      ]}
+    >
+      <View
+        style={[
+          styles.header,
+          { borderBottomColor: dynamicStyles.button.secondary.borderColor }, // Add border
+          responsivePadding,
+          safeAreaStyles.safeAreaTop,
+        ]}
+      >
         <View style={styles.headerTop}>
-          <TouchableOpacity
-            onPress={goBack}
-            style={styles.headerButton}
-          >
+          <TouchableOpacity onPress={goBack} style={styles.headerButton}>
             <ArrowLeft size={iconSize} color={dynamicStyles.icon.color} />
           </TouchableOpacity>
 
-          <Text style={[
-            styles.title,
-            { color: dynamicStyles.text.primary.color, fontSize: getFontSize(18) }
-          ]}>
+          <Text
+            style={[
+              styles.title,
+              {
+                color: dynamicStyles.text.primary.color,
+                fontSize: getFontSize(18),
+              },
+            ]}
+          >
             History
           </Text>
 
@@ -144,13 +178,22 @@ export default function HistoryScreen() {
           </TouchableOpacity>
         </View>
 
-        <View style={[
-          styles.searchContainer, 
-          { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.input.base.backgroundColor }
-        ]}>
+        <View
+          style={[
+            styles.searchContainer,
+            {
+              backgroundColor: isPrivateMode
+                ? dynamicStyles.privateMode.backgroundColor
+                : dynamicStyles.input.base.backgroundColor,
+            },
+          ]}
+        >
           <Search size={20} color={dynamicStyles.text.secondary.color} />
           <TextInput
-            style={[styles.searchInput, { color: dynamicStyles.text.primary.color }]}
+            style={[
+              styles.searchInput,
+              { color: dynamicStyles.text.primary.color },
+            ]}
             placeholder="Search history"
             placeholderTextColor={dynamicStyles.text.secondary.color}
             value={searchQuery}
@@ -167,12 +210,22 @@ export default function HistoryScreen() {
       {history.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Clock size={48} color={dynamicStyles.text.secondary.color} />
-          <Text style={[styles.emptyText, { color: dynamicStyles.text.primary.color }]}>
+          <Text
+            style={[
+              styles.emptyText,
+              { color: dynamicStyles.text.primary.color },
+            ]}
+          >
             No browsing history
           </Text>
-          <Text style={[styles.emptySubtext, { color: dynamicStyles.text.secondary.color }]}>
-            {isPrivateMode 
-              ? 'History is not saved in Incognito mode' 
+          <Text
+            style={[
+              styles.emptySubtext,
+              { color: dynamicStyles.text.secondary.color },
+            ]}
+          >
+            {isPrivateMode
+              ? 'History is not saved in Incognito mode'
               : 'Your browsing history will appear here'}
           </Text>
         </View>
@@ -183,11 +236,16 @@ export default function HistoryScreen() {
           contentContainerStyle={[
             styles.listContent,
             responsivePadding,
-            safeAreaStyles.safeAreaBottom
+            safeAreaStyles.safeAreaBottom,
           ]}
           renderItem={({ item: section }) => (
             <View style={styles.section}>
-              <Text style={[styles.sectionHeader, { color: dynamicStyles.text.secondary.color }]}>
+              <Text
+                style={[
+                  styles.sectionHeader,
+                  { color: dynamicStyles.text.secondary.color },
+                ]}
+              >
                 {section.date}
               </Text>
               {section.data.map((item) => (
@@ -197,21 +255,36 @@ export default function HistoryScreen() {
                   onPress={() => handleItemPress(item)}
                 >
                   <View style={styles.itemContent}>
-                    <Clock size={16} color={dynamicStyles.text.secondary.color} style={styles.itemIcon} />
+                    <Clock
+                      size={16}
+                      color={dynamicStyles.text.secondary.color}
+                      style={styles.itemIcon}
+                    />
                     <View style={styles.itemTextContainer}>
-                      <Text 
-                        style={[styles.itemTitle, { color: dynamicStyles.text.primary.color }]} 
+                      <Text
+                        style={[
+                          styles.itemTitle,
+                          { color: dynamicStyles.text.primary.color },
+                        ]}
                         numberOfLines={1}
                       >
                         {item.title || item.url}
                       </Text>
-                      <Text 
-                        style={[styles.itemUrl, { color: dynamicStyles.text.secondary.color }]} 
+                      <Text
+                        style={[
+                          styles.itemUrl,
+                          { color: dynamicStyles.text.secondary.color },
+                        ]}
                         numberOfLines={1}
                       >
                         {item.url}
                       </Text>
-                      <Text style={[styles.itemTime, { color: dynamicStyles.text.secondary.color }]}>
+                      <Text
+                        style={[
+                          styles.itemTime,
+                          { color: dynamicStyles.text.secondary.color },
+                        ]}
+                      >
                         {formatTime(item.timestamp)}
                       </Text>
                     </View>
@@ -233,7 +306,8 @@ export default function HistoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { // Base style, background handled inline
+  container: {
+    // Base style, background handled inline
     flex: 1,
   } as ViewStyle,
   // privateContainer removed
@@ -253,11 +327,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  title: { // Base style, color handled inline
+  title: {
+    // Base style, color handled inline
     fontFamily: staticTheme.typography.families.sansMedium,
   } as TextStyle,
   // privateText removed
-  searchContainer: { // Base style, background handled inline
+  searchContainer: {
+    // Base style, background handled inline
     flexDirection: 'row' as const,
     alignItems: 'center',
     borderRadius: staticTheme.radius.full,
@@ -265,7 +341,8 @@ const styles = StyleSheet.create({
     height: 48,
   } as ViewStyle,
   // privateSearchContainer removed
-  searchInput: { // Base style, color handled inline
+  searchInput: {
+    // Base style, color handled inline
     flex: 1,
     height: 48,
     paddingHorizontal: staticTheme.spacing.sm,
@@ -278,12 +355,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 24,
   },
-  emptyText: { // Base style, color handled inline
+  emptyText: {
+    // Base style, color handled inline
     fontFamily: staticTheme.typography.families.sansMedium,
     fontSize: staticTheme.typography.sizes.lg,
     marginTop: staticTheme.spacing.lg,
   } as TextStyle,
-  emptySubtext: { // Base style, color handled inline
+  emptySubtext: {
+    // Base style, color handled inline
     fontFamily: staticTheme.typography.families.sans,
     fontSize: staticTheme.typography.sizes.sm,
     marginTop: staticTheme.spacing.sm,
@@ -296,7 +375,8 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 16,
   },
-  sectionHeader: { // Base style, color handled inline
+  sectionHeader: {
+    // Base style, color handled inline
     fontFamily: staticTheme.typography.families.sansMedium,
     fontSize: staticTheme.typography.sizes.sm,
     marginBottom: staticTheme.spacing.sm,
@@ -321,16 +401,19 @@ const styles = StyleSheet.create({
   itemTextContainer: {
     flex: 1,
   },
-  itemTitle: { // Base style, color handled inline
+  itemTitle: {
+    // Base style, color handled inline
     fontFamily: staticTheme.typography.families.sans,
     fontSize: staticTheme.typography.sizes.sm,
   } as TextStyle,
-  itemUrl: { // Base style, color handled inline
+  itemUrl: {
+    // Base style, color handled inline
     fontFamily: staticTheme.typography.families.sans,
     fontSize: staticTheme.typography.sizes.xs,
     marginTop: 2,
   } as TextStyle,
-  itemTime: { // Base style, color handled inline
+  itemTime: {
+    // Base style, color handled inline
     fontFamily: staticTheme.typography.families.sans,
     fontSize: staticTheme.typography.sizes.xs,
     marginTop: 2,

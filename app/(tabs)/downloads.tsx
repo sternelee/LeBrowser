@@ -1,9 +1,31 @@
 import { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, TextInput, Alert, ViewStyle, TextStyle } from 'react-native';
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  TextInput,
+  Alert,
+  ViewStyle,
+  TextStyle,
+} from 'react-native';
 import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed theme, import commonStyles
 import { useTheme } from '@/context/ThemeContext'; // Import useTheme
 import { useRouter } from 'expo-router';
-import { ArrowLeft, Search, Download, Trash2, X, File, FileText, Image, Music, Video, Archive } from 'lucide-react-native';
+import {
+  ArrowLeft,
+  Search,
+  Download,
+  Trash2,
+  X,
+  File,
+  FileText,
+  Image,
+  Music,
+  Video,
+  Archive,
+} from 'lucide-react-native';
 import { useBrowserContext } from '@/context/BrowserContext';
 import { usePrivacyContext } from '@/context/PrivacyContext';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
@@ -25,12 +47,20 @@ export default function DownloadsScreen() {
   const { downloads, clearDownloads, removeDownloadItem } = useBrowserContext();
   const { isPrivateMode } = usePrivacyContext();
   const router = useRouter();
-  const { isTablet, isDesktop, getIconSize, getFontSize, getResponsivePadding } = useResponsiveSize();
+  const {
+    isTablet,
+    isDesktop,
+    getIconSize,
+    getFontSize,
+    getResponsivePadding,
+  } = useResponsiveSize();
   const { styles: safeAreaStyles } = useSafeArea();
   const { isDarkMode } = useTheme();
   const dynamicStyles = commonStyles(isDarkMode);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredDownloads, setFilteredDownloads] = useState<DownloadItem[]>([]);
+  const [filteredDownloads, setFilteredDownloads] = useState<DownloadItem[]>(
+    [],
+  );
 
   useEffect(() => {
     if (searchQuery.trim() === '') {
@@ -38,9 +68,7 @@ export default function DownloadsScreen() {
     } else {
       const query = searchQuery.toLowerCase();
       setFilteredDownloads(
-        downloads.filter(
-          item => item.filename.toLowerCase().includes(query)
-        )
+        downloads.filter((item) => item.filename.toLowerCase().includes(query)),
       );
     }
   }, [searchQuery, downloads]);
@@ -56,14 +84,14 @@ export default function DownloadsScreen() {
       [
         {
           text: 'Cancel',
-          style: 'cancel'
+          style: 'cancel',
         },
         {
           text: 'Clear',
           onPress: clearDownloads,
-          style: 'destructive'
-        }
-      ]
+          style: 'destructive',
+        },
+      ],
     );
   };
 
@@ -73,10 +101,11 @@ export default function DownloadsScreen() {
 
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp);
-    return date.toLocaleDateString(undefined, { 
-      month: 'short', 
+    return date.toLocaleDateString(undefined, {
+      month: 'short',
       day: 'numeric',
-      year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+      year:
+        date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined,
     });
   };
 
@@ -105,28 +134,38 @@ export default function DownloadsScreen() {
   const responsivePadding = getResponsivePadding();
 
   return (
-    <SafeAreaView style={[
-      styles.container,
-      { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.container.base.backgroundColor }
-    ]}>
-      <View style={[
-        styles.header,
-        { borderBottomColor: dynamicStyles.button.secondary.borderColor }, // Add border
-        responsivePadding,
-        safeAreaStyles.safeAreaTop
-      ]}>
+    <SafeAreaView
+      style={[
+        styles.container,
+        {
+          backgroundColor: isPrivateMode
+            ? dynamicStyles.privateMode.backgroundColor
+            : dynamicStyles.container.base.backgroundColor,
+        },
+      ]}
+    >
+      <View
+        style={[
+          styles.header,
+          { borderBottomColor: dynamicStyles.button.secondary.borderColor }, // Add border
+          responsivePadding,
+          safeAreaStyles.safeAreaTop,
+        ]}
+      >
         <View style={styles.headerTop}>
-          <TouchableOpacity
-            onPress={goBack}
-            style={styles.headerButton}
-          >
+          <TouchableOpacity onPress={goBack} style={styles.headerButton}>
             <ArrowLeft size={iconSize} color={dynamicStyles.icon.color} />
           </TouchableOpacity>
 
-          <Text style={[
-            styles.title,
-            { color: dynamicStyles.text.primary.color, fontSize: getFontSize(18) }
-          ]}>
+          <Text
+            style={[
+              styles.title,
+              {
+                color: dynamicStyles.text.primary.color,
+                fontSize: getFontSize(18),
+              },
+            ]}
+          >
             Downloads
           </Text>
 
@@ -138,13 +177,22 @@ export default function DownloadsScreen() {
           </TouchableOpacity>
         </View>
 
-        <View style={[
-          styles.searchContainer, 
-          { backgroundColor: isPrivateMode ? dynamicStyles.privateMode.backgroundColor : dynamicStyles.input.base.backgroundColor }
-        ]}>
+        <View
+          style={[
+            styles.searchContainer,
+            {
+              backgroundColor: isPrivateMode
+                ? dynamicStyles.privateMode.backgroundColor
+                : dynamicStyles.input.base.backgroundColor,
+            },
+          ]}
+        >
           <Search size={20} color={dynamicStyles.text.secondary.color} />
           <TextInput
-            style={[styles.searchInput, { color: dynamicStyles.text.primary.color }]}
+            style={[
+              styles.searchInput,
+              { color: dynamicStyles.text.primary.color },
+            ]}
             placeholder="Search downloads"
             placeholderTextColor={dynamicStyles.text.secondary.color}
             value={searchQuery}
@@ -161,10 +209,20 @@ export default function DownloadsScreen() {
       {downloads.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Download size={48} color={dynamicStyles.text.secondary.color} />
-          <Text style={[styles.emptyText, { color: dynamicStyles.text.primary.color }]}>
+          <Text
+            style={[
+              styles.emptyText,
+              { color: dynamicStyles.text.primary.color },
+            ]}
+          >
             No downloads
           </Text>
-          <Text style={[styles.emptySubtext, { color: dynamicStyles.text.secondary.color }]}>
+          <Text
+            style={[
+              styles.emptySubtext,
+              { color: dynamicStyles.text.secondary.color },
+            ]}
+          >
             Downloaded files will appear here
           </Text>
         </View>
@@ -175,47 +233,78 @@ export default function DownloadsScreen() {
           contentContainerStyle={[
             styles.listContent,
             responsivePadding,
-            safeAreaStyles.safeAreaBottom
+            safeAreaStyles.safeAreaBottom,
           ]}
           renderItem={({ item }) => (
-            <View style={[styles.downloadItem, { borderBottomColor: dynamicStyles.button.secondary.borderColor }]}>
+            <View
+              style={[
+                styles.downloadItem,
+                {
+                  borderBottomColor: dynamicStyles.button.secondary.borderColor,
+                },
+              ]}
+            >
               <View style={styles.fileIconContainer}>
                 {getFileIcon(item.fileType)}
               </View>
               <View style={styles.downloadDetails}>
-                <Text 
-                  style={[styles.fileName, { color: dynamicStyles.text.primary.color }]} 
+                <Text
+                  style={[
+                    styles.fileName,
+                    { color: dynamicStyles.text.primary.color },
+                  ]}
                   numberOfLines={1}
                 >
                   {item.filename}
                 </Text>
                 <View style={styles.downloadInfo}>
-                  <Text style={[styles.fileSize, { color: dynamicStyles.text.secondary.color }]}>
+                  <Text
+                    style={[
+                      styles.fileSize,
+                      { color: dynamicStyles.text.secondary.color },
+                    ]}
+                  >
                     {item.size}
                   </Text>
-                  <Text style={[styles.downloadDate, { color: dynamicStyles.text.secondary.color }]}>
+                  <Text
+                    style={[
+                      styles.downloadDate,
+                      { color: dynamicStyles.text.secondary.color },
+                    ]}
+                  >
                     {formatDate(item.timestamp)}
                   </Text>
                   {item.status === 'in_progress' && (
-                    <Text style={[styles.downloadStatus, { color: dynamicStyles.text.accent.color }]}>
+                    <Text
+                      style={[
+                        styles.downloadStatus,
+                        { color: dynamicStyles.text.accent.color },
+                      ]}
+                    >
                       {Math.round(item.progress || 0)}%
                     </Text>
                   )}
                   {item.status === 'failed' && (
-                    <Text style={styles.downloadFailed}>
-                      Failed
-                    </Text>
+                    <Text style={styles.downloadFailed}>Failed</Text>
                   )}
                 </View>
                 {item.status === 'in_progress' && (
-                  <View style={[styles.progressBarContainer, { backgroundColor: dynamicStyles.button.secondary.borderColor }]}>
-                    <View 
+                  <View
+                    style={[
+                      styles.progressBarContainer,
+                      {
+                        backgroundColor:
+                          dynamicStyles.button.secondary.borderColor,
+                      },
+                    ]}
+                  >
+                    <View
                       style={[
                         styles.progressBar,
-                        { 
+                        {
                           width: `${item.progress ?? 0}%`, // Default to 0 if undefined
-                          backgroundColor: dynamicStyles.text.accent.color 
-                        } 
+                          backgroundColor: dynamicStyles.text.accent.color,
+                        },
                       ]}
                     />
                   </View>
@@ -236,7 +325,8 @@ export default function DownloadsScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { // Base style, background handled inline
+  container: {
+    // Base style, background handled inline
     flex: 1,
   } as ViewStyle,
   // privateContainer removed
@@ -256,11 +346,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  title: { // Base style, color handled inline
+  title: {
+    // Base style, color handled inline
     fontFamily: staticTheme.typography.families.sansMedium,
   } as TextStyle,
   // privateText removed
-  searchContainer: { // Base style, background handled inline
+  searchContainer: {
+    // Base style, background handled inline
     flexDirection: 'row' as const,
     alignItems: 'center',
     borderRadius: staticTheme.radius.full,
@@ -268,7 +360,8 @@ const styles = StyleSheet.create({
     height: 48,
   } as ViewStyle,
   // privateSearchContainer removed
-  searchInput: { // Base style, color handled inline
+  searchInput: {
+    // Base style, color handled inline
     flex: 1,
     height: 48,
     paddingHorizontal: staticTheme.spacing.sm,
@@ -281,12 +374,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 24,
   },
-  emptyText: { // Base style, color handled inline
+  emptyText: {
+    // Base style, color handled inline
     fontFamily: staticTheme.typography.families.sansMedium,
     fontSize: staticTheme.typography.sizes.lg,
     marginTop: staticTheme.spacing.lg,
   } as TextStyle,
-  emptySubtext: { // Base style, color handled inline
+  emptySubtext: {
+    // Base style, color handled inline
     fontFamily: staticTheme.typography.families.sans,
     fontSize: staticTheme.typography.sizes.sm,
     marginTop: staticTheme.spacing.sm,
@@ -296,7 +391,8 @@ const styles = StyleSheet.create({
   listContent: {
     paddingBottom: 24,
   },
-  downloadItem: { // Base style, border handled inline
+  downloadItem: {
+    // Base style, border handled inline
     flexDirection: 'row' as const,
     alignItems: 'center',
     paddingVertical: staticTheme.spacing.md,
@@ -313,7 +409,8 @@ const styles = StyleSheet.create({
   downloadDetails: {
     flex: 1,
   },
-  fileName: { // Base style, color handled inline
+  fileName: {
+    // Base style, color handled inline
     fontFamily: staticTheme.typography.families.sans,
     fontSize: staticTheme.typography.sizes.sm,
     marginBottom: staticTheme.spacing.xs,
@@ -322,33 +419,39 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  fileSize: { // Base style, color handled inline
+  fileSize: {
+    // Base style, color handled inline
     fontFamily: staticTheme.typography.families.sans,
     fontSize: staticTheme.typography.sizes.xs,
     marginRight: staticTheme.spacing.sm,
   } as TextStyle,
-  downloadDate: { // Base style, color handled inline
+  downloadDate: {
+    // Base style, color handled inline
     fontFamily: staticTheme.typography.families.sans,
     fontSize: staticTheme.typography.sizes.xs,
   } as TextStyle,
-  downloadStatus: { // Base style, color handled inline
+  downloadStatus: {
+    // Base style, color handled inline
     fontFamily: staticTheme.typography.families.sans,
     fontSize: staticTheme.typography.sizes.xs,
     marginLeft: staticTheme.spacing.sm,
   } as TextStyle,
-  downloadFailed: { // Semantic color, kept as is
+  downloadFailed: {
+    // Semantic color, kept as is
     fontFamily: staticTheme.typography.families.sans,
     fontSize: staticTheme.typography.sizes.xs,
     color: staticTheme.colors.error,
     marginLeft: staticTheme.spacing.sm,
   } as TextStyle,
-  progressBarContainer: { // Base style, background handled inline
+  progressBarContainer: {
+    // Base style, background handled inline
     height: 4,
     borderRadius: staticTheme.radius.full,
     marginTop: staticTheme.spacing.xs,
     overflow: 'hidden',
   } as ViewStyle,
-  progressBar: { // Base style, background handled inline
+  progressBar: {
+    // Base style, background handled inline
     height: '100%',
   } as ViewStyle,
   removeButton: {
