@@ -12,7 +12,6 @@ import { usePrivacyContext } from '@/context/PrivacyContext';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { commonStyles } from '@/styles/theme'; // Import commonStyles
 import { useBrowserContext } from '@/context/BrowserContext';
-
 import { Search, Clock } from 'lucide-react-native';
 
 interface BrowserViewProps {
@@ -218,11 +217,12 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
             isPrivateMode ? 'bg-purple-900 dark:bg-purple-950' : 'bg-background'
           }
         `}
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{ 
+          paddingTop: 16,
+          paddingBottom: 100 
+        }}
         showsVerticalScrollIndicator={false}
       >
-        {/* 顶部间距 */}
-        <View className="h-8" />
 
         {/* 搜索栏 */}
         <View className="px-4 mb-8">

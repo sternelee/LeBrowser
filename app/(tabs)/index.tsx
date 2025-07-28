@@ -5,7 +5,6 @@ import { useColorScheme } from '~/lib/useColorScheme';
 import { BrowserView } from '@/components/browser/BrowserView';
 import { useBrowserContext } from '@/context/BrowserContext';
 import { usePrivacyContext } from '@/context/PrivacyContext';
-import { ChromeAddressBar } from '@/components/browser/ChromeAddressBar';
 import { ChromeBottomBar } from '@/components/browser/ChromeBottomBar';
 import { ChromeMenu } from '@/components/browser/ChromeMenu';
 import { HomeScreen } from '@/components/browser/HomeScreen';
@@ -67,7 +66,7 @@ export default function BrowserScreen() {
       className={`flex-1 ${isDarkColorScheme ? 'dark' : ''} ${
         isPrivateMode ? 'bg-purple-900 dark:bg-purple-950' : 'bg-background'
       }`}
-      edges={['left', 'right']}
+      edges={['top', 'left', 'right', 'bottom']}
     >
       <View
         className={`flex-1 ${useSideBySideLayout ? 'flex-row' : 'flex-col'}`}
@@ -86,17 +85,6 @@ export default function BrowserScreen() {
             </View>
 
             <View className="flex-1 flex-col">
-              <ChromeAddressBar
-                url={currentUrl}
-                onSubmit={updateUrl}
-                isLoading={isLoading}
-                isPrivateMode={isPrivateMode}
-                tabsCount={tabs.length}
-                onMenuPress={handleMenuPress}
-                onFocus={handleAddressBarFocus}
-                onBlur={handleAddressBarBlur}
-              />
-
               {!currentUrl && !addressBarFocused ? (
                 <HomeScreen
                   onSearch={updateUrl}
@@ -109,17 +97,6 @@ export default function BrowserScreen() {
           </>
         ) : (
           <>
-            <ChromeAddressBar
-              url={currentUrl}
-              onSubmit={updateUrl}
-              isLoading={isLoading}
-              isPrivateMode={isPrivateMode}
-              tabsCount={tabs.length}
-              onMenuPress={handleMenuPress}
-              onFocus={handleAddressBarFocus}
-              onBlur={handleAddressBarBlur}
-            />
-
             {!currentUrl && !addressBarFocused ? (
               <HomeScreen
                 onSearch={updateUrl}
@@ -129,7 +106,7 @@ export default function BrowserScreen() {
               <BrowserView url={currentUrl} tabId={currentTab} />
             )}
 
-            <View className="pb-safe">
+            <View>
               <ChromeBottomBar
                 refreshPage={refreshPage}
                 onSearchPress={handleSearchPress}
@@ -154,4 +131,3 @@ export default function BrowserScreen() {
     </SafeAreaView>
   );
 }
-
