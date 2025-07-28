@@ -59,6 +59,52 @@ export default function BrowserScreen() {
     setAddressBarFocused(false);
   };
 
+  // Tools Panel Handlers
+  const handleTranslate = () => {
+    console.log('Translate pressed');
+    // TODO: Implement translation functionality
+  };
+
+  const handlePin = () => {
+    console.log('Pin pressed');
+    // TODO: Implement pin functionality
+  };
+
+  const handleFind = () => {
+    console.log('Find pressed');
+    // TODO: Implement find in page functionality
+  };
+
+  const handleShare = () => {
+    console.log('Share pressed');
+    // TODO: Implement share functionality
+  };
+
+  const handleZoomIn = () => {
+    console.log('Zoom in pressed');
+    // TODO: Implement zoom in functionality
+  };
+
+  const handleZoomOut = () => {
+    console.log('Zoom out pressed');
+    // TODO: Implement zoom out functionality
+  };
+
+  const handleResetZoom = () => {
+    console.log('Reset zoom pressed');
+    // TODO: Implement reset zoom functionality
+  };
+
+  const handleDesktopSite = () => {
+    console.log('Desktop site pressed');
+    // TODO: Implement desktop site toggle functionality
+  };
+
+  const handleSiteSettings = () => {
+    console.log('Site settings pressed');
+    // TODO: Implement site settings functionality
+  };
+
   const useSideBySideLayout = (isTablet || isDesktop) && isLandscape;
 
   return (
@@ -81,6 +127,16 @@ export default function BrowserScreen() {
                 isPrivateMode={isPrivateMode}
                 tabsCount={tabs.length}
                 onLongPressRefresh={handleMenuPress}
+                onTranslate={handleTranslate}
+                onPin={handlePin}
+                onFind={handleFind}
+                onShare={handleShare}
+                onZoomIn={handleZoomIn}
+                onZoomOut={handleZoomOut}
+                onResetZoom={handleResetZoom}
+                onDesktopSite={handleDesktopSite}
+                onSiteSettings={handleSiteSettings}
+                zoomLevel={100}
               />
             </View>
 
@@ -114,6 +170,16 @@ export default function BrowserScreen() {
                 isPrivateMode={isPrivateMode}
                 tabsCount={tabs.length}
                 onLongPressRefresh={handleMenuPress}
+                onTranslate={handleTranslate}
+                onPin={handlePin}
+                onFind={handleFind}
+                onShare={handleShare}
+                onZoomIn={handleZoomIn}
+                onZoomOut={handleZoomOut}
+                onResetZoom={handleResetZoom}
+                onDesktopSite={handleDesktopSite}
+                onSiteSettings={handleSiteSettings}
+                zoomLevel={100}
               />
             </View>
           </>

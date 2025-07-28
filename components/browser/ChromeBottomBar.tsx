@@ -1,8 +1,10 @@
+import React, { useState } from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { Home, Bookmark, Search, Layers, RefreshCw } from 'lucide-react-native';
+import { Home, Bookmark, Search, Layers, RefreshCw, ChevronUp } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
+import { ToolsPanel } from './ToolsPanel';
 
 interface ChromeBottomBarProps {
   refreshPage: () => void;
@@ -11,6 +13,16 @@ interface ChromeBottomBarProps {
   isPrivateMode: boolean;
   tabsCount: number;
   onLongPressRefresh?: () => void;
+  onTranslate?: () => void;
+  onPin?: () => void;
+  onFind?: () => void;
+  onShare?: () => void;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
+  onResetZoom?: () => void;
+  onDesktopSite?: () => void;
+  onSiteSettings?: () => void;
+  zoomLevel?: number;
 }
 
 export function ChromeBottomBar({
@@ -20,10 +32,21 @@ export function ChromeBottomBar({
   isPrivateMode,
   tabsCount,
   onLongPressRefresh,
+  onTranslate,
+  onPin,
+  onFind,
+  onShare,
+  onZoomIn,
+  onZoomOut,
+  onResetZoom,
+  onDesktopSite,
+  onSiteSettings,
+  zoomLevel = 100,
 }: ChromeBottomBarProps) {
   const router = useRouter();
   const { isTablet, isDesktop } = useResponsiveSize();
   const { isDarkColorScheme } = useColorScheme();
+  const [showToolsPanel, setShowToolsPanel] = useState(false);
 
   const navigateToTabs = () => {
     router.navigate('/tabs');
@@ -31,6 +54,14 @@ export function ChromeBottomBar({
 
   const navigateHome = () => {
     router.navigate('/');
+  };
+
+  const handleToolsPress = () => {
+    setShowToolsPanel(true);
+  };
+
+  const handleCloseToolsPanel = () => {
+    setShowToolsPanel(false);
   };
 
   const iconSize = isDesktop ? 28 : isTablet ? 26 : 24;
@@ -122,7 +153,7 @@ export function ChromeBottomBar({
       </TouchableOpacity>
 
       {/* Refresh Button */}
-      <TouchableOpacity
+      {/* <TouchableOpacity
         className={`
           p-3 rounded-full justify-center items-center
           ${isTablet ? 'p-4' : ''}
@@ -136,7 +167,39 @@ export function ChromeBottomBar({
           size={iconSize}
           color={isDarkColorScheme ? '#ffffff' : '#000000'}
         />
+      </TouchableOpacity> */}
+
+      {/* Tools Button */}
+      <TouchableOpacity
+        className={`
+          p-3 rounded-full justify-center items-center
+          ${isTablet ? 'p-4' : ''}
+          ${isDesktop ? 'p-5' : ''}
+        `}
+        onPress={handleToolsPress}
+      >
+        <ChevronUp
+          size={iconSize}
+          color={isDarkColorScheme ? '#ffffff' : '#000000'}
+        />
       </TouchableOpacity>
+
+      {/* Tools Panel */}
+      <ToolsPanel
+        visible={showToolsPanel}
+        onClose={handleCloseToolsPanel}
+        isPrivateMode={isPrivateMode}
+        onTranslate={onTranslate}
+        onPin={onPin}
+        onFind={onFind}
+        onShare={onShare}
+        onZoomIn={onZoomIn}
+        onZoomOut={onZoomOut}
+        onResetZoom={onResetZoom}
+        onDesktopSite={onDesktopSite}
+        onSiteSettings={onSiteSettings}
+        zoomLevel={zoomLevel}
+      />
     </View>
   );
 }
