@@ -11,7 +11,7 @@ import {
   TextStyle,
 } from 'react-native'; // Removed StatusBar
 import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed theme, import commonStyles
-import { useTheme } from '@/context/ThemeContext'; // Import useTheme
+import { useColorScheme } from '~/lib/useColorScheme';
 import {
   Bookmark,
   Search,
@@ -42,8 +42,8 @@ export default function BookmarksScreen() {
     getResponsivePadding,
   } = useResponsiveSize();
   const { styles: safeAreaStyles } = useSafeArea();
-  const { isDarkMode } = useTheme();
-  const dynamicStyles = commonStyles(isDarkMode);
+  const { isDarkColorScheme } = useColorScheme();
+  const dynamicStyles = commonStyles(isDarkColorScheme);
 
   const [newBookmarkUrl, setNewBookmarkUrl] = useState('');
   const [newBookmarkTitle, setNewBookmarkTitle] = useState('');

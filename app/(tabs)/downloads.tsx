@@ -11,7 +11,7 @@ import {
   TextStyle,
 } from 'react-native';
 import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed theme, import commonStyles
-import { useTheme } from '@/context/ThemeContext'; // Import useTheme
+import { useColorScheme } from '~/lib/useColorScheme';
 import { useRouter } from 'expo-router';
 import {
   ArrowLeft,
@@ -55,8 +55,8 @@ export default function DownloadsScreen() {
     getResponsivePadding,
   } = useResponsiveSize();
   const { styles: safeAreaStyles } = useSafeArea();
-  const { isDarkMode } = useTheme();
-  const dynamicStyles = commonStyles(isDarkMode);
+  const { isDarkColorScheme } = useColorScheme();
+  const dynamicStyles = commonStyles(isDarkColorScheme);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredDownloads, setFilteredDownloads] = useState<DownloadItem[]>(
     [],

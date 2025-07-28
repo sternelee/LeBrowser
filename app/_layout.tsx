@@ -1,52 +1,83 @@
-import { useEffect, useCallback } from 'react';
+import '~/global.css';
+
+import {
+  DarkTheme,
+  DefaultTheme,
+  Theme,
+  ThemeProvider,
+} from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import * as React from 'react';
 import { useFonts } from 'expo-font';
 import {
   Inter_400Regular,
   Inter_500Medium,
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
+import { Appearance, Platform, View } from 'react-native';
+import { NAV_THEME } from '~/lib/constants';
+import { useColorScheme } from '~/lib/useColorScheme';
+import { PortalHost } from '@rn-primitives/portal';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BrowserProvider } from '@/context/BrowserContext';
 import { PrivacyProvider } from '@/context/PrivacyContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { ThemeProvider, useTheme } from '@/context/ThemeContext';
+import { setAndroidNavigationBar } from '~/lib/android-navigation-bar';
+
+const LIGHT_THEME: Theme = {
+  ...DefaultTheme,
+  colors: NAV_THEME.light,
+};
+const DARK_THEME: Theme = {
+  ...DarkTheme,
+  colors: NAV_THEME.dark,
+};
+
+export {
+  // Catch any errors thrown by the Layout component.
+  ErrorBoundary,
+} from 'expo-router';
+
+const usePlatformSpecificSetup = Platform.select({
+  web: useSetWebBackgroundClassName,
+  android: useSetAndroidNavigationBar,
+  default: noop,
+});
 
 // Keep the splash screen visible until fonts are loaded
 SplashScreen.preventAutoHideAsync();
 
 function AppContent() {
-  const { isDarkMode } = useTheme();
   return (
     <>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="+not-found" />
       </Stack>
-      <StatusBar style={isDarkMode ? 'light' : 'dark'} />
     </>
   );
 }
 
 export default function RootLayout() {
   useFrameworkReady();
-
+  usePlatformSpecificSetup();
+  const { isDarkColorScheme } = useColorScheme();
   const [fontsLoaded, fontError] = useFonts({
     'Inter-Regular': Inter_400Regular,
     'Inter-Medium': Inter_500Medium,
     'Inter-Bold': Inter_700Bold,
   });
 
-  const onLayoutRootView = useCallback(async () => {
+  const onLayoutRootView = React.useCallback(async () => {
     if (fontsLoaded || fontError) {
       await SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     onLayoutRootView();
   }, [fontsLoaded, fontError, onLayoutRootView]);
 
@@ -57,14 +88,36 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <ThemeProvider>
+        <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
+          <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
           <PrivacyProvider>
             <BrowserProvider>
               <AppContent />
             </BrowserProvider>
           </PrivacyProvider>
+          <PortalHost />
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }
+
+const useIsomorphicLayoutEffect =
+  Platform.OS === 'web' && typeof window === 'undefined'
+    ? React.useEffect
+    : React.useLayoutEffect;
+
+function useSetWebBackgroundClassName() {
+  useIsomorphicLayoutEffect(() => {
+    // Adds the background color to the html element to prevent white background on overscroll.
+    document.documentElement.classList.add('bg-background');
+  }, []);
+}
+
+function useSetAndroidNavigationBar() {
+  React.useLayoutEffect(() => {
+    setAndroidNavigationBar(Appearance.getColorScheme() ?? 'light');
+  }, []);
+}
+
+function noop() {}

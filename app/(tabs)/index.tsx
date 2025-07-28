@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native'; // StatusBar removed
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Import commonStyles and staticTheme
-import { useTheme } from '@/context/ThemeContext'; // Import useTheme
+import { useColorScheme } from '~/lib/useColorScheme';
 import { BrowserView } from '@/components/browser/BrowserView';
 import { useBrowserContext } from '@/context/BrowserContext';
 import { usePrivacyContext } from '@/context/PrivacyContext';
@@ -11,14 +10,12 @@ import { ChromeBottomBar } from '@/components/browser/ChromeBottomBar';
 import { ChromeMenu } from '@/components/browser/ChromeMenu';
 import { HomeScreen } from '@/components/browser/HomeScreen';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
-import { useSafeArea } from '@/hooks/useSafeArea';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function BrowserScreen() {
   const {
     currentTab,
     tabs,
-    navigation: {}, // Removed canGoBack, canGoForward
     loadInitialUrl,
     refreshPage,
     currentUrl,
@@ -31,23 +28,18 @@ export default function BrowserScreen() {
   const [menuVisible, setMenuVisible] = useState(false);
   const [addressBarFocused, setAddressBarFocused] = useState(false);
   const { isLandscape, isTablet, isDesktop } = useResponsiveSize();
-  const { styles: safeAreaStyles, insets } = useSafeArea();
   const router = useRouter();
-  const { isDarkMode } = useTheme(); // Get theme status
-  const dynamicStyles = commonStyles(isDarkMode); // Get dynamic styles
+  const { isDarkColorScheme } = useColorScheme();
 
   useEffect(() => {
     loadInitialUrl();
   }, []);
 
   const handleSearchPress = () => {
-    // Navigate to search screen or implement search functionality
     console.log('Search pressed');
-    // Example: router.navigate('/search');
   };
 
   const handleBookmarksPress = () => {
-    // Navigate to bookmarks screen
     console.log('Bookmarks pressed');
     router.navigate('/bookmarks');
   };
@@ -68,40 +60,21 @@ export default function BrowserScreen() {
     setAddressBarFocused(false);
   };
 
-  // Determine if we should use a side-by-side layout for larger screens in landscape
   const useSideBySideLayout = (isTablet || isDesktop) && isLandscape;
 
   return (
     <SafeAreaView
-      style={[
-        styles.container,
-        { backgroundColor: dynamicStyles.container.base.backgroundColor },
-        isPrivateMode && {
-          backgroundColor: dynamicStyles.privateMode.backgroundColor,
-        }, // Apply dynamic private background
-      ]}
+      className={`flex-1 ${isDarkColorScheme ? 'dark' : ''} ${
+        isPrivateMode ? 'bg-purple-900 dark:bg-purple-950' : 'bg-background'
+      }`}
       edges={['left', 'right']}
     >
-      {/* StatusBar is now handled in app/_layout.tsx */}
-
       <View
-        style={[
-          styles.browserContainer,
-          useSideBySideLayout && styles.landscapeContainer,
-          safeAreaStyles.safeAreaTop,
-        ]}
+        className={`flex-1 ${useSideBySideLayout ? 'flex-row' : 'flex-col'}`}
       >
         {useSideBySideLayout ? (
-          // Side-by-side layout for tablets and desktops in landscape
           <>
-            <View
-              style={[
-                styles.sidebarContainer,
-                {
-                  borderRightColor: dynamicStyles.button.secondary.borderColor,
-                },
-              ]}
-            >
+            <View className="w-20 border-r border-border justify-center items-center">
               <ChromeBottomBar
                 refreshPage={refreshPage}
                 onSearchPress={handleSearchPress}
@@ -112,7 +85,7 @@ export default function BrowserScreen() {
               />
             </View>
 
-            <View style={styles.mainContentContainer}>
+            <View className="flex-1 flex-col">
               <ChromeAddressBar
                 url={currentUrl}
                 onSubmit={updateUrl}
@@ -135,7 +108,6 @@ export default function BrowserScreen() {
             </View>
           </>
         ) : (
-          // Standard mobile layout
           <>
             <ChromeAddressBar
               url={currentUrl}
@@ -157,7 +129,7 @@ export default function BrowserScreen() {
               <BrowserView url={currentUrl} tabId={currentTab} />
             )}
 
-            <View style={safeAreaStyles.safeAreaBottom}>
+            <View className="pb-safe">
               <ChromeBottomBar
                 refreshPage={refreshPage}
                 onSearchPress={handleSearchPress}
@@ -183,27 +155,3 @@ export default function BrowserScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    // Base container style, backgroundColor will be applied dynamically
-    flex: 1,
-  },
-  // privateContainer style object removed from StyleSheet as it's now fully dynamic inline
-  browserContainer: {
-    flex: 1,
-  },
-  landscapeContainer: {
-    flexDirection: 'row',
-  },
-  sidebarContainer: {
-    width: 80,
-    borderRightWidth: 1,
-    // borderRightColor will be set dynamically using dynamicStyles.button.secondary.borderColor
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  mainContentContainer: {
-    flex: 1,
-    flexDirection: 'column',
-  },
-});

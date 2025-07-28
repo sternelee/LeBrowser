@@ -1,536 +1,262 @@
-import { useState } from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  TextInput,
-  Alert,
-  Linking,
-  ViewStyle,
-  TextStyle,
-} from 'react-native';
-import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed theme, import commonStyles
-import { useTheme } from '@/context/ThemeContext'; // Import useTheme
-import { useRouter } from 'expo-router';
+import { ScrollView, Text, View, TouchableOpacity } from 'react-native';
+import React from 'react';
 import {
   ArrowLeft,
-  ChevronRight,
   HelpCircle,
-  MessageSquare,
+  MessageCircle,
+  Mail,
+  ExternalLink,
   Star,
-  Send,
-  Info,
   Shield,
-  BookOpen,
+  Zap,
 } from 'lucide-react-native';
+import { useColorScheme } from '~/lib/useColorScheme';
 import { usePrivacyContext } from '@/context/PrivacyContext';
-import { useResponsiveSize } from '@/hooks/useResponsiveSize';
-import { useSafeArea } from '@/hooks/useSafeArea';
+import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from '~/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 export default function HelpScreen() {
-  const { isPrivateMode } = usePrivacyContext();
   const router = useRouter();
-  const {
-    isTablet,
-    isDesktop,
-    getIconSize,
-    getFontSize,
-    getResponsivePadding,
-  } = useResponsiveSize();
-  const { styles: safeAreaStyles } = useSafeArea();
-  const { isDarkMode } = useTheme();
-  const dynamicStyles = commonStyles(isDarkMode);
-  const [feedbackText, setFeedbackText] = useState('');
+  const { isDarkColorScheme } = useColorScheme();
+  const { isPrivateMode } = usePrivacyContext();
 
   const goBack = () => {
     router.back();
   };
 
-  const handleSendFeedback = () => {
-    if (feedbackText.trim() === '') {
-      Alert.alert('Please enter your feedback');
-      return;
-    }
+  const helpTopics = [
+    {
+      icon: <Shield />,
+      title: 'Privacy & Security',
+      description:
+        'Learn about incognito mode, ad blocking, and data protection',
+      badge: 'Popular',
+    },
+    {
+      icon: <Zap />,
+      title: 'Getting Started',
+      description: 'Basic browsing, bookmarks, and navigation tips',
+      badge: 'New',
+    },
+    {
+      icon: <HelpCircle />,
+      title: 'Troubleshooting',
+      description: 'Common issues and solutions',
+    },
+  ];
 
-    // In a real app, this would send the feedback to a server
-    Alert.alert('Thank you!', 'Your feedback has been submitted.', [
-      {
-        text: 'OK',
-        onPress: () => setFeedbackText(''),
-      },
-    ]);
-  };
-
-  const openExternalLink = (url: string) => {
-    Linking.openURL(url).catch((err) => {
-      Alert.alert('Error', 'Could not open the link');
-    });
-  };
-
-  // Get responsive values
-  const iconSize = getIconSize(20);
-  const fontSize = getFontSize(16);
-  const responsivePadding = getResponsivePadding();
+  const contactOptions = [
+    {
+      icon: <MessageCircle />,
+      title: 'Live Chat',
+      description: 'Get instant help from our support team',
+      action: 'Start Chat',
+    },
+    {
+      icon: <Mail />,
+      title: 'Email Support',
+      description: 'Send us a detailed message',
+      action: 'Send Email',
+    },
+  ];
 
   return (
     <SafeAreaView
-      style={[
-        styles.container,
-        {
-          backgroundColor: isPrivateMode
-            ? dynamicStyles.privateMode.backgroundColor
-            : dynamicStyles.container.base.backgroundColor,
-        },
-      ]}
+      className={`
+        flex-1
+        ${isDarkColorScheme ? 'dark' : ''}
+        ${isPrivateMode ? 'bg-purple-900 dark:bg-purple-950' : 'bg-background'}
+      `}
     >
-      <View
-        style={[
-          styles.header,
-          { borderBottomColor: dynamicStyles.button.secondary.borderColor }, // Add border
-          responsivePadding,
-          safeAreaStyles.safeAreaTop,
-        ]}
-      >
-        <View style={styles.headerTop}>
-          <TouchableOpacity onPress={goBack} style={styles.headerButton}>
-            <ArrowLeft size={iconSize} color={dynamicStyles.icon.color} />
+      {/* Header */}
+      <View className="border-b border-border px-4 py-3 mb-4">
+        <View className="flex-row justify-between items-center">
+          <TouchableOpacity
+            className="w-10 h-10 justify-center items-center"
+            onPress={goBack}
+          >
+            <ArrowLeft
+              size={20}
+              color={isDarkColorScheme ? '#ffffff' : '#000000'}
+            />
           </TouchableOpacity>
 
-          <Text
-            style={[
-              styles.title,
-              {
-                color: dynamicStyles.text.primary.color,
-                fontSize: getFontSize(18),
-              },
-            ]}
-          >
-            Help & Feedback
+          <Text className="text-foreground text-lg font-medium">
+            Help & Support
           </Text>
 
-          <View style={styles.headerButton} />
+          <View className="w-10 h-10" />
         </View>
       </View>
 
       <ScrollView
-        style={styles.content}
-        contentContainerStyle={[
-          styles.contentContainer,
-          responsivePadding,
-          safeAreaStyles.safeAreaBottom,
-        ]}
+        className="flex-1 px-4"
+        contentContainerStyle={{ paddingBottom: 24 }}
       >
-        <View style={styles.section}>
-          <Text
-            style={[
-              styles.sectionTitle,
-              { color: dynamicStyles.text.secondary.color },
-            ]}
-          >
-            Help
+        {/* Welcome Section */}
+        <Card
+          className={`
+            mb-6
+            ${isPrivateMode ? 'bg-purple-800/50 border-purple-700' : 'bg-card'}
+          `}
+        >
+          <CardHeader>
+            <CardTitle className="text-card-foreground text-xl">
+              How can we help you?
+            </CardTitle>
+            <CardDescription>
+              Find answers to common questions or get in touch with our support
+              team
+            </CardDescription>
+          </CardHeader>
+        </Card>
+
+        {/* Help Topics */}
+        <View className="mb-6">
+          <Text className="text-foreground text-lg font-semibold mb-3">
+            Popular Topics
           </Text>
-
-          <TouchableOpacity
-            style={[
-              styles.helpItem,
-              { borderBottomColor: dynamicStyles.button.secondary.borderColor },
-            ]}
-            onPress={() =>
-              openExternalLink('https://support.google.com/chrome')
-            }
-          >
-            <View style={styles.helpItemLeft}>
-              <HelpCircle
-                size={24}
-                color={dynamicStyles.iconAccent.color}
-                style={styles.helpItemIcon}
-              />
-              <Text
-                style={[
-                  styles.helpItemText,
-                  { color: dynamicStyles.text.primary.color },
-                ]}
-              >
-                Chrome Help
-              </Text>
-            </View>
-            <ChevronRight
-              size={20}
-              color={dynamicStyles.text.secondary.color}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.helpItem,
-              { borderBottomColor: dynamicStyles.button.secondary.borderColor },
-            ]}
-            onPress={() =>
-              openExternalLink('https://support.google.com/chrome/answer/95346')
-            }
-          >
-            <View style={styles.helpItemLeft}>
-              <BookOpen
-                size={24}
-                color={dynamicStyles.iconAccent.color}
-                style={styles.helpItemIcon}
-              />
-              <Text
-                style={[
-                  styles.helpItemText,
-                  { color: dynamicStyles.text.primary.color },
-                ]}
-              >
-                Chrome Tips & Tricks
-              </Text>
-            </View>
-            <ChevronRight
-              size={20}
-              color={dynamicStyles.text.secondary.color}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.helpItem,
-              { borderBottomColor: dynamicStyles.button.secondary.borderColor },
-            ]}
-            onPress={() =>
-              openExternalLink(
-                'https://support.google.com/chrome/answer/114836',
-              )
-            }
-          >
-            <View style={styles.helpItemLeft}>
-              <Shield
-                size={24}
-                color={dynamicStyles.iconAccent.color}
-                style={styles.helpItemIcon}
-              />
-              <Text
-                style={[
-                  styles.helpItemText,
-                  { color: dynamicStyles.text.primary.color },
-                ]}
-              >
-                Privacy & Security
-              </Text>
-            </View>
-            <ChevronRight
-              size={20}
-              color={dynamicStyles.text.secondary.color}
-            />
-          </TouchableOpacity>
+          {helpTopics.map((topic, index) => (
+            <Card
+              key={index}
+              className={`
+                mb-3
+                ${
+                  isPrivateMode
+                    ? 'bg-purple-800/50 border-purple-700'
+                    : 'bg-card'
+                }
+              `}
+            >
+              <CardContent className="p-4">
+                <TouchableOpacity className="flex-row items-center">
+                  <View className="w-10 h-10 justify-center items-center bg-primary/10 rounded-full mr-3">
+                    {React.cloneElement(topic.icon as React.ReactElement, {
+                      size: 20,
+                      color: isDarkColorScheme ? '#3b82f6' : '#2563eb',
+                    })}
+                  </View>
+                  <View className="flex-1">
+                    <View className="flex-row items-center mb-1">
+                      <Text className="text-card-foreground font-medium text-base mr-2">
+                        {topic.title}
+                      </Text>
+                      {topic.badge && (
+                        <Badge
+                          variant={
+                            topic.badge === 'New' ? 'default' : 'secondary'
+                          }
+                        >
+                          {topic.badge}
+                        </Badge>
+                      )}
+                    </View>
+                    <Text className="text-muted-foreground text-sm">
+                      {topic.description}
+                    </Text>
+                  </View>
+                  <ExternalLink
+                    size={16}
+                    color={isDarkColorScheme ? '#9ca3af' : '#6b7280'}
+                  />
+                </TouchableOpacity>
+              </CardContent>
+            </Card>
+          ))}
         </View>
 
-        <View style={styles.section}>
-          <Text
-            style={[
-              styles.sectionTitle,
-              { color: dynamicStyles.text.secondary.color },
-            ]}
-          >
-            Feedback
+        {/* Contact Support */}
+        <View className="mb-6">
+          <Text className="text-foreground text-lg font-semibold mb-3">
+            Contact Support
           </Text>
-
-          <View
-            style={[
-              styles.feedbackContainer,
-              {
-                backgroundColor: isPrivateMode
-                  ? dynamicStyles.privateMode.backgroundColor
-                  : dynamicStyles.input.base.backgroundColor,
-              },
-            ]}
-          >
-            <Text
-              style={[
-                styles.feedbackLabel,
-                { color: dynamicStyles.text.primary.color },
-              ]}
+          {contactOptions.map((option, index) => (
+            <Card
+              key={index}
+              className={`
+                mb-3
+                ${
+                  isPrivateMode
+                    ? 'bg-purple-800/50 border-purple-700'
+                    : 'bg-card'
+                }
+              `}
             >
-              Tell us what you think
-            </Text>
-            <TextInput
-              style={[
-                styles.feedbackInput,
-                {
-                  backgroundColor: isPrivateMode
-                    ? dynamicStyles.privateMode.backgroundColor
-                    : dynamicStyles.container.base.backgroundColor,
-                  color: dynamicStyles.text.primary.color,
-                  borderColor: dynamicStyles.button.secondary.borderColor,
-                  borderWidth: 1,
-                },
-              ]}
-              placeholder="Your feedback helps us improve Chrome"
-              placeholderTextColor={dynamicStyles.text.secondary.color}
-              multiline
-              numberOfLines={4}
-              value={feedbackText}
-              onChangeText={setFeedbackText}
-            />
-            <TouchableOpacity
-              style={[
-                styles.sendButton,
-                {
-                  backgroundColor: dynamicStyles.button.primary.backgroundColor,
-                },
-                !feedbackText.trim() && {
-                  backgroundColor:
-                    dynamicStyles.button.secondary.backgroundColor,
-                  opacity: 0.6,
-                }, // Disabled style
-              ]}
-              onPress={handleSendFeedback}
-              disabled={!feedbackText.trim()}
-            >
-              <Text
-                style={[
-                  styles.sendButtonText,
-                  { color: dynamicStyles.button.primary.color },
-                ]}
-              >
-                Send
-              </Text>
-              <Send
-                size={16}
-                color={dynamicStyles.button.primary.color}
-                style={styles.sendIcon}
-              />
-            </TouchableOpacity>
-          </View>
-
-          <TouchableOpacity
-            style={[
-              styles.helpItem,
-              { borderBottomColor: dynamicStyles.button.secondary.borderColor },
-            ]}
-            onPress={() =>
-              openExternalLink(
-                'https://play.google.com/store/apps/details?id=com.android.chrome',
-              )
-            }
-          >
-            <View style={styles.helpItemLeft}>
-              <Star
-                size={24}
-                color={dynamicStyles.iconAccent.color}
-                style={styles.helpItemIcon}
-              />
-              <Text
-                style={[
-                  styles.helpItemText,
-                  { color: dynamicStyles.text.primary.color },
-                ]}
-              >
-                Rate on Play Store
-              </Text>
-            </View>
-            <ChevronRight
-              size={20}
-              color={dynamicStyles.text.secondary.color}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.helpItem,
-              { borderBottomColor: dynamicStyles.button.secondary.borderColor },
-            ]}
-            onPress={() =>
-              openExternalLink(
-                'https://support.google.com/chrome/contact/chrome_android_report',
-              )
-            }
-          >
-            <View style={styles.helpItemLeft}>
-              <MessageSquare
-                size={24}
-                color={dynamicStyles.iconAccent.color}
-                style={styles.helpItemIcon}
-              />
-              <Text
-                style={[
-                  styles.helpItemText,
-                  { color: dynamicStyles.text.primary.color },
-                ]}
-              >
-                Report an issue
-              </Text>
-            </View>
-            <ChevronRight
-              size={20}
-              color={dynamicStyles.text.secondary.color}
-            />
-          </TouchableOpacity>
+              <CardContent className="p-4">
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center flex-1">
+                    <View className="w-10 h-10 justify-center items-center bg-secondary rounded-full mr-3">
+                      {React.cloneElement(option.icon as React.ReactElement, {
+                        size: 20,
+                        color: isDarkColorScheme ? '#ffffff' : '#000000',
+                      })}
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-card-foreground font-medium text-base mb-1">
+                        {option.title}
+                      </Text>
+                      <Text className="text-muted-foreground text-sm">
+                        {option.description}
+                      </Text>
+                    </View>
+                  </View>
+                  <Button variant="outline" size="sm" title={option.action} />
+                </View>
+              </CardContent>
+            </Card>
+          ))}
         </View>
 
-        <View style={styles.section}>
-          <Text
-            style={[
-              styles.sectionTitle,
-              { color: dynamicStyles.text.secondary.color },
-            ]}
-          >
-            About
-          </Text>
-
-          <TouchableOpacity
-            style={[
-              styles.helpItem,
-              { borderBottomColor: dynamicStyles.button.secondary.borderColor },
-            ]}
-            onPress={() =>
-              Alert.alert(
-                'Chrome Browser',
-                'Version 1.0.0\n\nMobile Browser App\nBuilt with React Native and Expo',
-              )
-            }
-          >
-            <View style={styles.helpItemLeft}>
-              <Info
-                size={24}
-                color={dynamicStyles.iconAccent.color}
-                style={styles.helpItemIcon}
-              />
-              <Text
-                style={[
-                  styles.helpItemText,
-                  { color: dynamicStyles.text.primary.color },
-                ]}
-              >
-                Version info
-              </Text>
+        {/* App Info */}
+        <Card
+          className={`
+            ${isPrivateMode ? 'bg-purple-800/50 border-purple-700' : 'bg-card'}
+          `}
+        >
+          <CardHeader>
+            <CardTitle className="text-card-foreground">
+              App Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <View className="space-y-2">
+              <View className="flex-row justify-between">
+                <Text className="text-muted-foreground">Version</Text>
+                <Text className="text-card-foreground">1.0.0</Text>
+              </View>
+              <View className="flex-row justify-between">
+                <Text className="text-muted-foreground">Build</Text>
+                <Text className="text-card-foreground">2024.01.15</Text>
+              </View>
+              <View className="flex-row justify-between">
+                <Text className="text-muted-foreground">Platform</Text>
+                <Text className="text-card-foreground">React Native</Text>
+              </View>
             </View>
-            <Text
-              style={[
-                styles.versionText,
-                { color: dynamicStyles.text.secondary.color },
-              ]}
-            >
-              1.0.0
-            </Text>
-          </TouchableOpacity>
-        </View>
+
+            <View className="mt-4 pt-4 border-t border-border">
+              <Button variant="ghost" className="w-full" onPress={() => {}}>
+                <View className="flex-row items-center">
+                  <Star
+                    size={16}
+                    color={isDarkColorScheme ? '#fbbf24' : '#f59e0b'}
+                  />
+                  <Text className="ml-2 text-current">Rate this app</Text>
+                </View>
+              </Button>
+            </View>
+          </CardContent>
+        </Card>
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    // Base style, background handled inline
-    flex: 1,
-  } as ViewStyle,
-  // privateContainer removed
-  header: {
-    marginBottom: 8,
-    borderBottomWidth: 1, // Added border
-  },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  headerButton: {
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    // Base style, color handled inline
-    fontFamily: staticTheme.typography.families.sansMedium,
-  } as TextStyle,
-  // privateText removed
-  content: {
-    flex: 1,
-  },
-  contentContainer: {
-    paddingBottom: 24,
-  },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    // Base style, color handled inline
-    fontFamily: staticTheme.typography.families.sansMedium,
-    fontSize: staticTheme.typography.sizes.sm,
-    marginBottom: staticTheme.spacing.sm,
-    paddingHorizontal: staticTheme.spacing.sm,
-  } as TextStyle,
-  helpItem: {
-    // Base style, border handled inline
-    flexDirection: 'row' as const,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: staticTheme.spacing.lg,
-    paddingHorizontal: staticTheme.spacing.lg,
-    borderBottomWidth: 1,
-  } as ViewStyle,
-  helpItemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  helpItemIcon: {
-    marginRight: 16,
-  },
-  helpItemText: {
-    // Base style, color handled inline
-    fontFamily: staticTheme.typography.families.sans,
-    fontSize: staticTheme.typography.sizes.base,
-  } as TextStyle,
-  feedbackContainer: {
-    // Base style, background handled inline
-    borderRadius: staticTheme.radius.md,
-    padding: staticTheme.spacing.lg,
-    marginBottom: staticTheme.spacing.lg,
-  } as ViewStyle,
-  // privateFeedbackContainer removed
-  feedbackLabel: {
-    // Base style, color handled inline
-    fontFamily: staticTheme.typography.families.sansMedium,
-    fontSize: staticTheme.typography.sizes.base,
-    marginBottom: staticTheme.spacing.sm,
-  } as TextStyle,
-  feedbackInput: {
-    // Base style, background, color, border handled inline
-    borderRadius: staticTheme.radius.sm,
-    padding: staticTheme.spacing.md,
-    fontFamily: staticTheme.typography.families.sans,
-    fontSize: staticTheme.typography.sizes.sm,
-    minHeight: 100,
-    textAlignVertical: 'top' as const,
-  } as TextStyle,
-  // privateFeedbackInput removed
-  sendButton: {
-    // Base style, background handled inline
-    borderRadius: staticTheme.radius.sm,
-    paddingVertical: staticTheme.spacing.sm,
-    paddingHorizontal: staticTheme.spacing.lg,
-    alignSelf: 'flex-end',
-    marginTop: staticTheme.spacing.sm,
-    flexDirection: 'row' as const,
-    alignItems: 'center',
-  } as ViewStyle,
-  // disabledButton removed, handled inline
-  sendButtonText: {
-    // Base style, color handled inline
-    fontFamily: staticTheme.typography.families.sansMedium,
-    fontSize: staticTheme.typography.sizes.sm,
-  } as TextStyle,
-  sendIcon: {
-    marginLeft: 8,
-  },
-  versionText: {
-    // Base style, color handled inline
-    fontFamily: staticTheme.typography.families.sans,
-    fontSize: staticTheme.typography.sizes.sm,
-  } as TextStyle,
-  // privateSubtext removed
-});

@@ -23,7 +23,7 @@ import {
   Sun,
 } from 'lucide-react-native';
 import { usePrivacyContext } from '@/context/PrivacyContext';
-import { useTheme } from '@/context/ThemeContext';
+import { useColorScheme } from '~/lib/useColorScheme';
 import { useRouter } from 'expo-router';
 import { useSafeArea } from '@/hooks/useSafeArea';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
@@ -55,9 +55,9 @@ export default function PrivacyScreen() {
     getResponsivePadding,
   } = useResponsiveSize();
   const { styles: safeAreaStyles } = useSafeArea();
-  const { isDarkMode, toggleTheme } = useTheme();
+  const { isDarkColorScheme, toggleColorScheme } = useColorScheme();
 
-  const dynamicStyles = commonStyles(isDarkMode);
+  const dynamicStyles = commonStyles(isDarkColorScheme);
 
   const goBack = () => {
     router.back();
@@ -155,7 +155,7 @@ export default function PrivacyScreen() {
           </Text>
           <TouchableOpacity style={[styles.settingRow, styles.settingButton]}>
             <View style={styles.settingIcon}>
-              {isDarkMode ? (
+              {isDarkColorScheme ? (
                 <Moon size={20} color={dynamicStyles.iconAccent.color} />
               ) : (
                 <Sun size={20} color={dynamicStyles.iconAccent.color} />
@@ -176,18 +176,18 @@ export default function PrivacyScreen() {
                   { color: dynamicStyles.text.secondary.color },
                 ]}
               >
-                {isDarkMode ? 'Enabled' : 'Disabled'}
+                {isDarkColorScheme ? 'Enabled' : 'Disabled'}
               </Text>
             </View>
             <Switch
-              value={isDarkMode}
-              onValueChange={toggleTheme}
+              value={isDarkColorScheme}
+              onValueChange={toggleColorScheme}
               trackColor={{
                 false: staticTheme.colors.neutral[300],
                 true: staticTheme.colors.primary.dark,
               }}
               thumbColor={
-                isDarkMode
+                isDarkColorScheme
                   ? staticTheme.colors.primary.main
                   : staticTheme.colors.neutral[100]
               } // These might need adjustment for light theme

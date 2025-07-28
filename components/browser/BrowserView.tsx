@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { usePrivacyContext } from '@/context/PrivacyContext';
-import { useTheme } from '@/context/ThemeContext'; // Import useTheme
+import { useColorScheme } from '~/lib/useColorScheme';
 import { commonStyles } from '@/styles/theme'; // Import commonStyles
 import { useBrowserContext } from '@/context/BrowserContext';
 
@@ -34,8 +34,9 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
     fingerprintProtectionEnabled,
     cookieControlEnabled,
   } = usePrivacyContext();
-  const { isDarkMode, isMobileMode } = useTheme();
-  const dynamicStyles = commonStyles(isDarkMode);
+  const { isDarkColorScheme } = useColorScheme();
+  // const { isMobileMode } = useColorScheme();
+  const dynamicStyles = commonStyles(isDarkColorScheme);
 
   useEffect(() => {
     if (url !== currentUrl) {
@@ -175,7 +176,7 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
     'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1 SecureBrowser/1.0';
   const desktopUserAgent =
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36 SecureBrowser/1.0';
-  const userAgent = isMobileMode ? mobileUserAgent : desktopUserAgent;
+  const userAgent = true ? mobileUserAgent : desktopUserAgent;
 
   return (
     <View

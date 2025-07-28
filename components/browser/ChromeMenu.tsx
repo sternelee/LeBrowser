@@ -10,7 +10,7 @@ import {
   TextStyle,
 } from 'react-native';
 import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed theme, import commonStyles
-import { useTheme } from '@/context/ThemeContext'; // Import useTheme
+import { useColorScheme } from '~/lib/useColorScheme';
 import {
   Plus,
   Bookmark,
@@ -45,8 +45,8 @@ export function ChromeMenu({
 }: ChromeMenuProps) {
   const router = useRouter();
   const { isTablet, isDesktop, getIconSize, getFontSize } = useResponsiveSize();
-  const { isDarkMode } = useTheme();
-  const dynamicStyles = commonStyles(isDarkMode);
+  const { isDarkColorScheme } = useColorScheme();
+  const dynamicStyles = commonStyles(isDarkColorScheme);
 
   const navigateToBookmarks = () => {
     onClose();
@@ -82,7 +82,7 @@ export function ChromeMenu({
   // Updated icon colors based on theme and private mode
   const baseIconColor = dynamicStyles.icon.color;
   const themedIconColor = isPrivateMode
-    ? isDarkMode
+    ? isDarkColorScheme
       ? staticTheme.dark.colors.textSecondary
       : staticTheme.light.colors.textSecondary
     : baseIconColor;
@@ -201,7 +201,7 @@ export function ChromeMenu({
                       styles.menuItemText,
                       {
                         color: isPrivateMode
-                          ? isDarkMode
+                          ? isDarkColorScheme
                             ? staticTheme.dark.colors.textSecondary
                             : staticTheme.light.colors.textSecondary
                           : dynamicStyles.text.primary.color,

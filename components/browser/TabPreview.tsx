@@ -9,7 +9,7 @@ import {
   ImageStyle,
 } from 'react-native';
 import { theme as staticTheme, commonStyles } from '@/styles/theme'; // Renamed theme, import commonStyles
-import { useTheme } from '@/context/ThemeContext'; // Import useTheme
+import { useColorScheme } from '~/lib/useColorScheme';
 import { Globe, X } from 'lucide-react-native';
 
 interface TabPreviewProps {
@@ -31,8 +31,8 @@ export function TabPreview({
   favicon,
   isPrivateMode,
 }: TabPreviewProps) {
-  const { isDarkMode } = useTheme();
-  const dynamicStyles = commonStyles(isDarkMode);
+  const { isDarkColorScheme } = useColorScheme();
+  const dynamicStyles = commonStyles(isDarkColorScheme);
 
   // Format URL for display
   const displayUrl = url
