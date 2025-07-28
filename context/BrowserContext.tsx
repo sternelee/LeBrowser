@@ -130,14 +130,14 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
   const [tabs, setTabs] = useState<string[]>(['initial']);
   const [currentTab, setCurrentTab] = useState<string>('initial');
   const [tabsInfo, setTabsInfo] = useState<{ [key: string]: TabInfo }>({
-    initial: { url: 'https://www.google.com', title: 'New Tab' },
+    initial: { url: 'about:home', title: 'New Tab' },
   });
   const [currentUrl, setCurrentUrl] = useState<string>(
-    'https://www.google.com',
+    'about:home',
   );
   const [canGoBack, setCanGoBack] = useState<boolean>(false);
   const [canGoForward, setCanGoForward] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [history, setHistory] = useState<HistoryItem[]>([
     {
