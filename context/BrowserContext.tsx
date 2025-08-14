@@ -5,8 +5,11 @@ import {
   useCallback,
   useEffect,
   ReactNode,
+  MutableRefObject,
+  useRef,
 } from 'react';
 import { useRouter } from 'expo-router';
+import { BrowserViewRef } from '@/components/browser/BrowserView';
 import { generateUUID } from '@/utils/helpers';
 import { usePrivacyContext } from './PrivacyContext';
 import * as SecureStore from 'expo-secure-store';
@@ -17,6 +20,7 @@ type TabInfo = {
   url: string;
   title: string;
   favicon?: string;
+  isDesktopMode?: boolean;
 };
 
 type Bookmark = {
@@ -55,10 +59,12 @@ interface BrowserContextType {
   currentTab: string;
   currentUrl: string;
   tabsInfo: { [key: string]: TabInfo };
+  isDesktopMode: boolean;
   bookmarks: Bookmark[];
   shortcuts: Shortcut[];
   history: HistoryItem[];
   downloads: DownloadItem[];
+  browserViewRef: MutableRefObject<BrowserViewRef | null>;
   navigation: {
     canGoBack: boolean;
     canGoForward: boolean;
@@ -76,6 +82,7 @@ interface BrowserContextType {
   setCanGoBack: (can: boolean) => void;
   setCanGoForward: (can: boolean) => void;
   setIsLoading: (loading: boolean) => void;
+  toggleDesktopMode: () => void;
   addBookmark: (bookmark: Bookmark) => void;
   removeBookmark: (url: string) => void;
   addHistoryItem: (item: Omit<HistoryItem, 'id'>) => void;
@@ -87,6 +94,7 @@ interface BrowserContextType {
   clearDownloads: () => void;
   loadInitialUrl: () => void;
   navigateToUrl: (url: string) => void;
+  setBrowserViewRef: (ref: BrowserViewRef | null) => void;
 }
 
 // Default store implementation for web (localStorage)
@@ -130,7 +138,7 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
   const [tabs, setTabs] = useState<string[]>(['initial']);
   const [currentTab, setCurrentTab] = useState<string>('initial');
   const [tabsInfo, setTabsInfo] = useState<{ [key: string]: TabInfo }>({
-    initial: { url: 'about:home', title: 'New Tab' },
+    initial: { url: 'about:home', title: 'New Tab', isDesktopMode: false },
   });
   const [currentUrl, setCurrentUrl] = useState<string>(
     'about:home',
@@ -246,6 +254,13 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
 
   const router = useRouter();
   const { isPrivateMode } = usePrivacyContext();
+  const browserViewRef = useRef<BrowserViewRef | null>(null);
+
+  const setBrowserViewRef = (ref: BrowserViewRef | null) => {
+    if (browserViewRef) {
+      browserViewRef.current = ref;
+    }
+  };
 
   // Load bookmarks from storage
   useEffect(() => {
@@ -351,7 +366,11 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
     setCurrentTab(newTabId);
     setTabsInfo((prev) => ({
       ...prev,
-      [newTabId]: { url: 'https://www.google.com', title: 'New Tab' },
+      [newTabId]: {
+        url: 'https://www.google.com',
+        title: 'New Tab',
+        isDesktopMode: false,
+      },
     }));
     setCurrentUrl('https://www.google.com');
     router.push('/');
@@ -407,7 +426,11 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
 
   const updateTabInfo = useCallback((tabId: string, info: Partial<TabInfo>) => {
     setTabsInfo((prev) => {
-      const tabInfo = prev[tabId] || { url: '', title: 'New Tab' };
+      const tabInfo = prev[tabId] || {
+        url: '',
+        title: 'New Tab',
+        isDesktopMode: false,
+      };
       return {
         ...prev,
         [tabId]: { ...tabInfo, ...info },
@@ -549,15 +572,34 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
     setDownloads([]);
   }, []);
 
+  const toggleDesktopMode = useCallback(() => {
+    if (!currentTab) return;
+
+    setTabsInfo((prev) => {
+      const currentTabInfo = prev[currentTab];
+      if (!currentTabInfo) return prev;
+
+      return {
+        ...prev,
+        [currentTab]: {
+          ...currentTabInfo,
+          isDesktopMode: !currentTabInfo.isDesktopMode,
+        },
+      };
+    });
+  }, [currentTab]);
+
   const value = {
     tabs,
     currentTab,
     currentUrl,
     tabsInfo,
+    isDesktopMode: tabsInfo[currentTab]?.isDesktopMode ?? false,
     bookmarks,
     shortcuts,
     history,
     downloads,
+    browserViewRef,
     navigation: {
       canGoBack,
       canGoForward,
@@ -575,6 +617,7 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
     setCanGoBack,
     setCanGoForward,
     setIsLoading,
+    toggleDesktopMode,
     addBookmark,
     removeBookmark,
     addHistoryItem,
@@ -586,6 +629,7 @@ export function BrowserProvider({ children }: { children: ReactNode }) {
     clearDownloads,
     loadInitialUrl,
     navigateToUrl,
+    setBrowserViewRef,
   };
 
   return (
