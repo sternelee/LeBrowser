@@ -11,6 +11,7 @@ export default function TabLayout() {
       <Stack.Screen name="downloads" />
       <Stack.Screen name="help" />
       <Stack.Screen name="ai" />
+      <Stack.Screen name="ai-settings" />
     </Stack>
   );
 }

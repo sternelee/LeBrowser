@@ -10,9 +10,13 @@ import {
   Text,
   SafeAreaView,
   ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import { useBrowserContext } from '@/context/BrowserContext';
+import { useAIContext } from '@/context/AIContext';
 import { Command, CommandMenu } from '@/components/ui/CommandMenu';
+import { LanguageSelectionModal } from '@/components/ui/LanguageSelectionModal';
+import { useRouter } from 'expo-router';
 
 function SummarizeToolUI({
   sendMessage,
@@ -155,9 +159,16 @@ export default function ChatScreen() {
   const [input, setInput] = useState('');
   const [showCommandMenu, setShowCommandMenu] = useState(false);
   const [commandFilter, setCommandFilter] = useState('');
+  const [isLanguageModalVisible, setIsLanguageModalVisible] = useState(false);
   const { browserViewRef, currentUrl } = useBrowserContext();
+  const { activeProvider, apiKeys } = useAIContext();
+  const router = useRouter();
 
   const { messages, error, sendMessage, setMessages } = useChat({
+    body: {
+      provider: activeProvider,
+      apiKey: apiKeys[activeProvider],
+    },
     transport: new DefaultChatTransport({
       fetch: expoFetch as unknown as typeof globalThis.fetch,
       api: generateAPIUrl('/api/chat'),
@@ -214,14 +225,19 @@ export default function ChatScreen() {
     },
     {
       name: 'translate',
-      description: 'Translate the current webpage to Spanish',
+      description: 'Translate the current webpage to another language',
       onSelect: () => {
-        handleTranslatePress('Spanish');
         setShowCommandMenu(false);
+        setIsLanguageModalVisible(true);
         setInput('');
       },
     },
   ];
+
+  const onLanguageSelect = (language: string) => {
+    handleTranslatePress(language);
+    setIsLanguageModalVisible(false);
+  };
 
   const handleInputChange = (text: string) => {
     setInput(text);
@@ -237,6 +253,17 @@ export default function ChatScreen() {
 
   return (
     <SafeAreaView style={{ height: '100%', backgroundColor: '#000' }}>
+      <LanguageSelectionModal
+        visible={isLanguageModalVisible}
+        onClose={() => setIsLanguageModalVisible(false)}
+        onSelectLanguage={onLanguageSelect}
+      />
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 10 }}>
+        <Text style={{ color: 'white', fontSize: 20, fontWeight: 'bold' }}>AI Chat</Text>
+        <TouchableOpacity onPress={() => router.push('/ai-settings')}>
+          <Text style={{ color: '#007bff', fontSize: 16 }}>Settings</Text>
+        </TouchableOpacity>
+      </View>
       <View
         style={{
           flex: 1,

@@ -1,12 +1,37 @@
 import { openai } from '@ai-sdk/openai';
+import { anthropic } from '@ai-sdk/anthropic';
+import { google } from '@ai-sdk/google';
 import { streamText, UIMessage, convertToModelMessages, tool } from 'ai';
 import { z } from 'zod';
 
+function getProvider(
+  provider: string,
+  apiKey?: string
+): typeof openai | typeof anthropic | typeof google {
+  switch (provider) {
+    case 'openai':
+      return openai({ apiKey });
+    case 'anthropic':
+      return anthropic({ apiKey });
+    case 'google':
+      return google({ apiKey });
+    default:
+      throw new Error(`Unsupported provider: ${provider}`);
+  }
+}
+
 export async function POST(req: Request) {
-  const { messages }: { messages: UIMessage[] } = await req.json();
+  const {
+    messages,
+    provider,
+    apiKey,
+  }: { messages: UIMessage[]; provider: string; apiKey?: string } =
+    await req.json();
+
+  const model = getProvider(provider, apiKey)('gpt-4o'); // Note: model name might need to be dynamic too
 
   const result = await streamText({
-    model: openai('gpt-4o'),
+    model: model,
     messages: convertToModelMessages(messages),
     tools: {
       summarizeWebsite: tool({

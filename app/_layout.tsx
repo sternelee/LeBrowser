@@ -25,6 +25,7 @@ import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { BrowserProvider } from '@/context/BrowserContext';
 import { PrivacyProvider } from '@/context/PrivacyContext';
+import { AIProvider } from '@/context/AIContext';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { setAndroidNavigationBar } from '~/lib/android-navigation-bar';
 
@@ -91,11 +92,13 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
           <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
-          <PrivacyProvider>
-            <BrowserProvider>
-              <AppContent />
-            </BrowserProvider>
-          </PrivacyProvider>
+          <AIProvider>
+            <PrivacyProvider>
+              <BrowserProvider>
+                <AppContent />
+              </BrowserProvider>
+            </PrivacyProvider>
+          </AIProvider>
           <PortalHost />
         </ThemeProvider>
       </SafeAreaProvider>
