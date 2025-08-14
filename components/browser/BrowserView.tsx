@@ -1,32 +1,47 @@
-import { useState, useRef, useEffect } from 'react';
 import {
-  StyleSheet,
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Image,
-} from 'react-native';
+  useState,
+  useRef,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
+import { StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { usePrivacyContext } from '@/context/PrivacyContext';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { commonStyles } from '@/styles/theme'; // Import commonStyles
 import { useBrowserContext } from '@/context/BrowserContext';
-import { Search, Clock } from 'lucide-react-native';
+import { SafariHomePage } from './SafariHomePage';
+
+export interface BrowserViewRef {
+  zoomIn: () => void;
+  zoomOut: () => void;
+  resetZoom: () => void;
+  findInPage: (query: string) => void;
+  findNext: (forward: boolean) => void;
+  clearFind: () => void;
+  getPageContent: () => Promise<string>;
+}
 
 interface BrowserViewProps {
   url: string;
   tabId: string;
+  isDesktopMode?: boolean;
 }
 
-export function BrowserView({ url, tabId }: BrowserViewProps) {
-  const webViewRef = useRef<WebView>(null);
-  const [currentUrl, setCurrentUrl] = useState(url);
+export const BrowserView = forwardRef<BrowserViewRef, BrowserViewProps>(
+  ({ url, tabId, isDesktopMode = false }, ref) => {
+    const webViewRef = useRef<WebView>(null);
+    const contentPromiseResolveRef = useRef<((content: string) => void) | null>(
+      null
+    );
+    const [currentUrl, setCurrentUrl] = useState(url);
   const [pageTitle, setPageTitle] = useState('');
   const [pageFavicon, setPageFavicon] = useState<string | undefined>(undefined);
   const [showHomePage, setShowHomePage] = useState(
     url === 'about:home' || url === ''
   );
+  const [zoomLevel, setZoomLevel] = useState(100);
 
   const {
     setCanGoBack,
@@ -35,9 +50,6 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
     updateTabInfo,
     setCurrentUrl: setContextUrl,
     addHistoryItem,
-    shortcuts,
-    history,
-    navigateToUrl,
   } = useBrowserContext();
 
   const {
@@ -50,6 +62,54 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
   const { isDarkColorScheme } = useColorScheme();
   // const { isMobileMode } = useColorScheme();
   const dynamicStyles = commonStyles(isDarkColorScheme);
+
+  useImperativeHandle(ref, () => ({
+    getPageContent: (): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        if (webViewRef.current) {
+          contentPromiseResolveRef.current = resolve;
+          webViewRef.current.injectJavaScript(
+            `window.ReactNativeWebView.postMessage(document.body.innerText); true;`
+          );
+          setTimeout(() => {
+            if (contentPromiseResolveRef.current) {
+              reject(new Error('Timeout getting page content'));
+              contentPromiseResolveRef.current = null;
+            }
+          }, 5000); // 5-second timeout
+        } else {
+          reject(new Error('WebView ref is not available'));
+        }
+      });
+    },
+    findInPage: (query: string) => {
+      webViewRef.current?.findAllAsync(query);
+    },
+    findNext: (forward: boolean) => {
+      webViewRef.current?.findNextAsync(forward);
+    },
+    clearFind: () => {
+      webViewRef.current?.findAllAsync('');
+    },
+    zoomIn: () => {
+      const newZoomLevel = zoomLevel + 10;
+      setZoomLevel(newZoomLevel);
+      webViewRef.current?.injectJavaScript(
+        `document.body.style.zoom = '${newZoomLevel}%';`
+      );
+    },
+    zoomOut: () => {
+      const newZoomLevel = Math.max(50, zoomLevel - 10);
+      setZoomLevel(newZoomLevel);
+      webViewRef.current?.injectJavaScript(
+        `document.body.style.zoom = '${newZoomLevel}%';`
+      );
+    },
+    resetZoom: () => {
+      setZoomLevel(100);
+      webViewRef.current?.injectJavaScript(`document.body.style.zoom = '100%';`);
+    },
+  }));
 
   useEffect(() => {
     if (url !== currentUrl) {
@@ -198,208 +258,7 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
     'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1 SecureBrowser/1.0';
   const desktopUserAgent =
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36 SecureBrowser/1.0';
-  const userAgent = true ? mobileUserAgent : desktopUserAgent;
-
-  // Safari-style home page component
-  const SafariHomePage = () => {
-    const { isDarkColorScheme } = useColorScheme();
-
-    const handleUrlPress = (url: string) => {
-      navigateToUrl(url);
-      setShowHomePage(false);
-    };
-
-    return (
-      <ScrollView
-        className={`
-          flex-1
-          ${
-            isPrivateMode ? 'bg-purple-900 dark:bg-purple-950' : 'bg-background'
-          }
-        `}
-        contentContainerStyle={{ 
-          paddingTop: 16,
-          paddingBottom: 100 
-        }}
-        showsVerticalScrollIndicator={false}
-      >
-
-        {/* 搜索栏 */}
-        <View className="px-4 mb-8">
-          <TouchableOpacity
-            className={`
-              flex-row items-center rounded-2xl p-4 shadow-sm
-              ${
-                isPrivateMode
-                  ? 'bg-purple-800/30 border border-purple-700/50'
-                  : 'bg-secondary/80 border border-border/30'
-              }
-            `}
-            activeOpacity={0.7}
-            onPress={() => {
-              // 触发搜索栏焦点
-              console.log('Search bar pressed');
-            }}
-          >
-            <Search
-              size={20}
-              color={isDarkColorScheme ? '#9ca3af' : '#6b7280'}
-            />
-            <Text className="ml-3 text-muted-foreground flex-1 text-base">
-              搜索或输入网站名称
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* 收藏网站 */}
-        <View className="px-4 mb-8">
-          <Text className="text-xl font-semibold mb-4 text-foreground">
-            收藏
-          </Text>
-          <View className="flex-row flex-wrap justify-between">
-            {shortcuts.slice(0, 8).map((site, index) => (
-              <TouchableOpacity
-                key={index}
-                className="w-1/4 items-center mb-6"
-                onPress={() => handleUrlPress(site.url)}
-                activeOpacity={0.7}
-              >
-                <View
-                  className={`
-                  w-16 h-16 rounded-2xl justify-center items-center mb-2 shadow-sm
-                  ${isPrivateMode ? 'bg-purple-800/40' : 'bg-secondary'}
-                `}
-                >
-                  {site.favicon ? (
-                    <Image
-                      source={{ uri: site.favicon }}
-                      className="w-10 h-10 rounded-lg"
-                      resizeMode="contain"
-                    />
-                  ) : (
-                    <View className="w-10 h-10 rounded-lg bg-blue-500 justify-center items-center">
-                      <Text className="text-white text-lg font-semibold">
-                        {site.title.charAt(0).toUpperCase()}
-                      </Text>
-                    </View>
-                  )}
-                </View>
-                <Text
-                  className="text-xs text-center text-muted-foreground"
-                  numberOfLines={2}
-                  style={{ lineHeight: 14 }}
-                >
-                  {site.title}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* 隐私报告 */}
-        <View className="px-4 mb-8">
-          <View
-            className={`
-            rounded-2xl p-4 shadow-sm
-            ${
-              isPrivateMode
-                ? 'bg-purple-800/30 border border-purple-700/50'
-                : 'bg-secondary/60'
-            }
-          `}
-          >
-            <View className="flex-row items-center mb-2">
-              <View
-                className={`
-                w-8 h-8 rounded-full justify-center items-center mr-3
-                ${isPrivateMode ? 'bg-purple-600' : 'bg-blue-500'}
-              `}
-              >
-                <Text className="text-white text-sm font-bold">🛡️</Text>
-              </View>
-              <Text className="text-base font-semibold text-foreground">
-                隐私报告
-              </Text>
-            </View>
-            <Text className="text-sm text-muted-foreground leading-5">
-              {isPrivateMode
-                ? '隐私浏览模式已启用，您的浏览活动不会被记录。'
-                : '在过去的 7 天内，已阻止 23 个跟踪器跟踪您的浏览活动。'}
-            </Text>
-          </View>
-        </View>
-
-        {/* 最近访问 */}
-        {!isPrivateMode && history.length > 0 && (
-          <View className="px-4 mb-8">
-            <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-xl font-semibold text-foreground">
-                最近访问
-              </Text>
-              <TouchableOpacity activeOpacity={0.7}>
-                <Text className="text-blue-500 text-base font-medium">
-                  显示全部
-                </Text>
-              </TouchableOpacity>
-            </View>
-            <View className="bg-secondary/60 rounded-2xl overflow-hidden shadow-sm">
-              {history.slice(0, 4).map((item, index) => (
-                <TouchableOpacity
-                  key={item.id}
-                  className={`
-                    flex-row items-center p-4
-                    ${index < 3 ? 'border-b border-border/30' : ''}
-                  `}
-                  onPress={() => handleUrlPress(item.url)}
-                  activeOpacity={0.7}
-                >
-                  <View className="w-10 h-10 rounded-xl bg-background justify-center items-center mr-3 shadow-sm">
-                    {item.favicon ? (
-                      <Image
-                        source={{ uri: item.favicon }}
-                        className="w-6 h-6 rounded-md"
-                        resizeMode="contain"
-                      />
-                    ) : (
-                      <Clock
-                        size={16}
-                        color={isDarkColorScheme ? '#9ca3af' : '#6b7280'}
-                      />
-                    )}
-                  </View>
-                  <View className="flex-1">
-                    <Text
-                      className="text-sm font-medium text-foreground mb-1"
-                      numberOfLines={1}
-                    >
-                      {item.title || '无标题'}
-                    </Text>
-                    <Text
-                      className="text-xs text-muted-foreground"
-                      numberOfLines={1}
-                    >
-                      {item.url}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        )}
-
-        {/* 隐私模式提示 */}
-        {isPrivateMode && (
-          <View className="px-4 mb-8">
-            <View className="bg-purple-800/30 border border-purple-700/50 rounded-2xl p-4">
-              <Text className="text-purple-200 text-sm text-center leading-5">
-                您正在使用隐私浏览模式。关闭所有隐私标签页后，您的浏览历史记录、搜索记录和自动填充信息将不会保存在此设备上。
-              </Text>
-            </View>
-          </View>
-        )}
-      </ScrollView>
-    );
-  };
+  const userAgent = isDesktopMode ? desktopUserAgent : mobileUserAgent;
 
   return (
     <View
@@ -419,6 +278,12 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
           ref={webViewRef}
           source={{ uri: currentUrl || 'https://www.google.com' }}
           style={styles.webView}
+          onMessage={(event) => {
+            if (contentPromiseResolveRef.current) {
+              contentPromiseResolveRef.current(event.nativeEvent.data);
+              contentPromiseResolveRef.current = null;
+            }
+          }}
           onNavigationStateChange={handleNavigationStateChange}
           onLoadStart={() => setIsLoading(true)}
           onLoadEnd={() => {
@@ -447,7 +312,10 @@ export function BrowserView({ url, tabId }: BrowserViewProps) {
       )}
     </View>
   );
-}
+  }
+);
+
+BrowserView.displayName = 'BrowserView';
 
 const styles = StyleSheet.create({
   container: {

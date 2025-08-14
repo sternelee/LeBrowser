@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { useRouter } from 'expo-router';
+import * as Sharing from 'expo-sharing';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { BrowserView } from '@/components/browser/BrowserView';
 import { useBrowserContext } from '@/context/BrowserContext';
 import { usePrivacyContext } from '@/context/PrivacyContext';
 import { ChromeBottomBar } from '@/components/browser/ChromeBottomBar';
 import { ChromeMenu } from '@/components/browser/ChromeMenu';
-import { HomeScreen } from '@/components/browser/HomeScreen';
+import { SafariHomePage } from '@/components/browser/SafariHomePage';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -18,14 +19,15 @@ export default function BrowserScreen() {
     loadInitialUrl,
     refreshPage,
     currentUrl,
-    updateUrl,
-    isLoading,
     addNewTab,
+    toggleDesktopMode,
+    isDesktopMode,
+    setBrowserViewRef,
+    browserViewRef,
   } = useBrowserContext();
 
   const { isPrivateMode, togglePrivateMode } = usePrivacyContext();
   const [menuVisible, setMenuVisible] = useState(false);
-  const [addressBarFocused, setAddressBarFocused] = useState(false);
   const { isLandscape, isTablet, isDesktop } = useResponsiveSize();
   const router = useRouter();
   const { isDarkColorScheme } = useColorScheme();
@@ -51,13 +53,6 @@ export default function BrowserScreen() {
     setMenuVisible(false);
   };
 
-  const handleAddressBarFocus = () => {
-    setAddressBarFocused(true);
-  };
-
-  const handleAddressBarBlur = () => {
-    setAddressBarFocused(false);
-  };
 
   // Tools Panel Handlers
   const handleTranslate = () => {
@@ -71,33 +66,41 @@ export default function BrowserScreen() {
   };
 
   const handleFind = () => {
-    console.log('Find pressed');
-    // TODO: Implement find in page functionality
+    // For now, this is just a proof of concept.
+    // A proper implementation would involve a UI to get the search query.
+    browserViewRef.current?.findInPage('the');
   };
 
-  const handleShare = () => {
-    console.log('Share pressed');
-    // TODO: Implement share functionality
+  const handleShare = async () => {
+    if (currentUrl) {
+      try {
+        await Sharing.shareAsync(currentUrl);
+      } catch (error) {
+        console.error('Error sharing URL:', error);
+      }
+    } else {
+      console.log('No URL to share');
+    }
   };
 
   const handleZoomIn = () => {
-    console.log('Zoom in pressed');
-    // TODO: Implement zoom in functionality
+    browserViewRef.current?.zoomIn();
   };
 
   const handleZoomOut = () => {
-    console.log('Zoom out pressed');
-    // TODO: Implement zoom out functionality
+    browserViewRef.current?.zoomOut();
   };
 
   const handleResetZoom = () => {
-    console.log('Reset zoom pressed');
-    // TODO: Implement reset zoom functionality
+    browserViewRef.current?.resetZoom();
   };
 
   const handleDesktopSite = () => {
-    console.log('Desktop site pressed');
-    // TODO: Implement desktop site toggle functionality
+    toggleDesktopMode();
+    // A page refresh is likely needed to apply the new user agent
+    setTimeout(() => {
+      refreshPage();
+    }, 100);
   };
 
   const handleSiteSettings = () => {
@@ -141,27 +144,30 @@ export default function BrowserScreen() {
             </View>
 
             <View className="flex-1 flex-col">
-              {!currentUrl && !addressBarFocused ? (
-                <HomeScreen
-                  onSearch={updateUrl}
-                  onFocusSearch={handleAddressBarFocus}
-                />
+              {currentUrl === 'about:home' ? (
+                <SafariHomePage />
               ) : (
-                <BrowserView url={currentUrl} tabId={currentTab} />
+                <BrowserView
+                  ref={(node) => setBrowserViewRef(node)}
+                  url={currentUrl}
+                  tabId={currentTab}
+                  isDesktopMode={isDesktopMode}
+                />
               )}
             </View>
           </>
         ) : (
           <>
-            {!currentUrl && !addressBarFocused ? (
-              <HomeScreen
-                onSearch={updateUrl}
-                onFocusSearch={handleAddressBarFocus}
-              />
+            {currentUrl === 'about:home' ? (
+              <SafariHomePage />
             ) : (
-              <BrowserView url={currentUrl} tabId={currentTab} />
+              <BrowserView
+                ref={(node) => setBrowserViewRef(node)}
+                url={currentUrl}
+                tabId={currentTab}
+                isDesktopMode={isDesktopMode}
+              />
             )}
-
             <View>
               <ChromeBottomBar
                 refreshPage={refreshPage}

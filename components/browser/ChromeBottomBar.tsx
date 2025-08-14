@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Text } from 'react-native';
 import { useColorScheme } from '~/lib/useColorScheme';
-import { Home, Bookmark, Search, Layers, RefreshCw, ChevronUp } from 'lucide-react-native';
+import {
+  Home,
+  Bookmark,
+  Search,
+  Layers,
+  RefreshCw,
+  ChevronUp,
+  Sparkles,
+} from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useResponsiveSize } from '@/hooks/useResponsiveSize';
 import { ToolsPanel } from './ToolsPanel';
@@ -50,6 +58,10 @@ export function ChromeBottomBar({
 
   const navigateToTabs = () => {
     router.navigate('/tabs');
+  };
+
+  const navigateToAI = () => {
+    router.navigate('/ai');
   };
 
   const navigateHome = () => {
@@ -101,6 +113,21 @@ export function ChromeBottomBar({
         onPress={onBookmarksPress}
       >
         <Bookmark
+          size={iconSize}
+          color={isDarkColorScheme ? '#ffffff' : '#000000'}
+        />
+      </TouchableOpacity>
+
+      {/* AI Button */}
+      <TouchableOpacity
+        className={`
+          p-3 rounded-full justify-center items-center
+          ${isTablet ? 'p-4' : ''}
+          ${isDesktop ? 'p-5' : ''}
+        `}
+        onPress={navigateToAI}
+      >
+        <Sparkles
           size={iconSize}
           color={isDarkColorScheme ? '#ffffff' : '#000000'}
         />

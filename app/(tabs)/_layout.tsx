@@ -10,6 +10,7 @@ export default function TabLayout() {
       <Stack.Screen name="history" />
       <Stack.Screen name="downloads" />
       <Stack.Screen name="help" />
+      <Stack.Screen name="ai" />
     </Stack>
   );
 }
