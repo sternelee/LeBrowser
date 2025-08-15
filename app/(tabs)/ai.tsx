@@ -1,6 +1,6 @@
 import { generateAPIUrl } from '@/utils';
 import { useChat } from '@ai-sdk/react';
-import { DefaultChatTransport, SendMessage } from 'ai';
+import { DefaultChatTransport } from 'ai';
 import { fetch as expoFetch } from 'expo/fetch';
 import { useState, useEffect } from 'react';
 import {
@@ -17,7 +17,7 @@ import { Command, CommandMenu } from '@/components/ui/CommandMenu';
 function SummarizeToolUI({
   sendMessage,
 }: {
-  sendMessage: SendMessage;
+  sendMessage: any;
 }) {
   const { browserViewRef } = useBrowserContext();
   const [isLoading, setIsLoading] = useState(true);
@@ -62,7 +62,7 @@ function TranslateToolUI({
   sendMessage,
   language,
 }: {
-  sendMessage: SendMessage;
+  sendMessage: any;
   language: string;
 }) {
   const { browserViewRef } = useBrowserContext();
@@ -108,7 +108,7 @@ function AnswerQuestionToolUI({
   sendMessage,
   question,
 }: {
-  sendMessage: SendMessage;
+  sendMessage: any;
   question: string;
 }) {
   const { browserViewRef } = useBrowserContext();
@@ -253,7 +253,7 @@ export default function ChatScreen() {
                 {m.parts.map((part, i) => {
                   switch (part.type) {
                     case 'text':
-                      return <Text key={`${m.id}-${i}`} style={{color: 'white'}}>{part.text}</Text>;
+                      return <Text key={`${m.id}-${i}`} style={{ color: 'white' }}>{part.text}</Text>;
                     case 'tool-summarizeWebsite':
                       return (
                         <SummarizeToolUI

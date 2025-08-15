@@ -10,6 +10,7 @@
     "postinstall": "npx tailwindcss -i ./global.css -o ./node_modules/.cache/nativewind/global.css"
   },
   "dependencies": {
+    "@ai-sdk/deepseek": "^1.0.7",
     "@ai-sdk/openai": "^2.0.12",
     "@ai-sdk/react": "^2.0.12",
     "@expo-google-fonts/inter": "^0.2.3",
@@ -69,8 +70,8 @@
   "devDependencies": {
     "@babel/core": "^7.26.0",
     "@types/react": "~19.0.14",
-    "typescript": "^5.8.3",
     "eslint": "^9.0.0",
-    "eslint-config-expo": "~9.2.0"
+    "eslint-config-expo": "~9.2.0",
+    "typescript": "^5.8.3"
   }
 }

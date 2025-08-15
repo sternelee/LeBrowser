@@ -1,12 +1,14 @@
-import { openai } from '@ai-sdk/openai';
+// import { openai } from '@ai-sdk/openai';
+import { deepseek } from '@ai-sdk/deepseek';
 import { streamText, UIMessage, convertToModelMessages, tool } from 'ai';
 import { z } from 'zod';
 
 export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
 
-  const result = await streamText({
-    model: openai('gpt-4o'),
+  const result = streamText({
+    // model: openai('gpt-4o'),
+    model: deepseek('deepseek-chat'),
     messages: convertToModelMessages(messages),
     tools: {
       summarizeWebsite: tool({
